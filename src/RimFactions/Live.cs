@@ -187,11 +187,15 @@ namespace RimFactions
 
         // ================= together (feature:StartTogether, feature:SplitOff) =================
 
+        /// The name Multiplayer gives me in a session (owners are kept under it).
+        public static string MyName() =>
+            AccessTools.Field(AccessTools.TypeByName("Multiplayer.Client.Multiplayer"), "username")?.GetValue(null) as string ?? Link.MyName;
+
         public static void OpenTogether()
         {
             var comp = Comp;
             var me = AccessTools.Field(AccessTools.TypeByName("Multiplayer.Client.Multiplayer"), "username")?.GetValue(null) as string ?? Link.MyName;
-            foreach (var p in PawnsFinder.AllMaps_FreeColonistsSpawned.Where(p => p.Faction == Faction.OfPlayer && comp.OwnerOf(p) == null))
+            foreach (var p in PawnsFinder.AllMaps_FreeColonists.Where(p => p.Faction == Faction.OfPlayer && comp.OwnerOf(p) == null))
                 comp.SetOwner(p, me);
             comp.togetherOpen = true;
             if (!comp.kits.Contains(me)) comp.kits.Add(me);   // feature:StartingKit: the host had the scenario's

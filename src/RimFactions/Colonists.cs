@@ -247,6 +247,9 @@ namespace RimFactions
             }
             confirmed = false;
             var init = Find.GameInitData;
+            // my own starting colonists are mine from the start (they're still in their drop pods when the session opens)
+            var hostName = Live.MyName();
+            foreach (var mine in init.startingAndOptionalPawns.Take(init.startingPawnCount)) Lobby.pendingOwners[mine] = hostName;
             foreach (var (mpName, pawns) in Lobby.friendColonists.Values)
                 foreach (var x in pawns.Take(12))
                 {
@@ -415,5 +418,20 @@ namespace RimFactions
         }
 
         Vector2 infoScroll;
+    }
+}
+
+namespace RimFactions
+{
+    /// feature:NameTags: each colonist's own name (on the map and in the colonist bar) shows in its owner's color.
+    [HarmonyPatch(typeof(PawnNameColorUtility), nameof(PawnNameColorUtility.PawnNameColorOf))]
+    static class OwnerNameColor
+    {
+        static void Postfix(Pawn pawn, ref Color __result)
+        {
+            if (!Rules.Local.nameTags || pawn == null || !Live.InSession) return;
+            var owner = Current.Game?.GetComponent<RFGameComp>()?.OwnerOf(pawn);
+            if (owner != null) __result = Lobby.ColorOf(owner);
+        }
     }
 }
