@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using HarmonyLib;
 using RimFactions.Net;
 using RimWorld;
@@ -117,6 +118,19 @@ namespace RimFactions
             var view = new Rect(0, 0, listRect.width - 16f, rows.Count * 52f);
             Widgets.BeginScrollView(listRect, ref scroll, view);
             float y = 0;
+            List<FloatMenuOption> RelationOptions(Friend f)
+            {
+                var opts = new List<FloatMenuOption>();
+                foreach (var other in rows.Where(o => o.id != f.id))
+                    foreach (var kind in new[] { "Hostile", "Neutral", "Ally" })
+                    {
+                        var with = other.id;
+                        opts.Add(new FloatMenuOption("RF_SetRelationOption".Translate(f.Label, other.Label, ("RF_Kind_" + kind).Translate()), () =>
+                            Link.Send(new Msg("SetRelation", "hub", new XElement("a", f.id), new XElement("b", with), new XElement("kind", kind)))));
+                    }
+                return opts;
+            }
+
             foreach (var f in rows)
             {
                 var r = new Rect(0, y, view.width, 48f);
@@ -130,10 +144,13 @@ namespace RimFactions
                 if (!f.IsMe)
                 {
                     int gw = Roster.Goodwill(Link.MyId, f.id);
-                    Widgets.Label(new Rect(r.x + r.width * 0.55f, r.y + 2, r.width * 0.3f, 44),
+                    Widgets.Label(new Rect(r.x + r.width * 0.42f, r.y + 2, r.width * 0.2f, 44),
                         "RF_GoodwillShort".Translate(gw.ToString("+0;-0;0"), ("RF_Kind_" + Roster.Kind(Link.MyId, f.id)).Translate()));
                     if (Widgets.ButtonText(new Rect(r.xMax - 110, r.y + 10, 104, 28), "RF_CompareMods".Translate()))
                         Find.WindowStack.Add(new ModCompareWindow(f));
+                    // feature:RelationCheat: the host sets this colony's relation with anyone
+                    if (Link.Role == LinkRole.Hub && Widgets.ButtonText(new Rect(r.xMax - 220, r.y + 10, 104, 28), "RF_SetRelation".Translate()))
+                        Find.WindowStack.Add(new FloatMenu(RelationOptions(f)));
                 }
                 y += 52f;
             }

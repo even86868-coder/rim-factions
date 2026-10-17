@@ -67,6 +67,10 @@ namespace RimFactions.Net
                 case "Goodwill":
                     ChangeGoodwill(m.Get("a"), m.Get("b"), m.GetInt("change"), m.Get("reason"));
                     return;
+                case "SetRelation":   // feature:RelationCheat: only the host
+                    if (playerId != Link.MyId) return;
+                    SetRelation(m.Get("a"), m.Get("b"), m.Get("kind"));
+                    return;
                 case "Lobby":
                     if (playerId != Link.MyId) return;   // only the host runs the lobby
                     OnLobby(m.x.Element("lobby"));
@@ -163,6 +167,22 @@ namespace RimFactions.Net
             if (newKind != kind)
                 Route(new Msg("News", "*", new XElement("news", "RelationChanged"),
                     new XElement("a", a), new XElement("b", b), new XElement("kind", newKind), new XElement("previous", kind)));
+            BroadcastRoster();
+        }
+
+        /// feature:RelationCheat — the host sets two colonies' relation outright (goodwill jumps to match).
+        void SetRelation(string a, string b, string kind)
+        {
+            if (a == null || b == null || a == b || !(kind == "Hostile" || kind == "Neutral" || kind == "Ally")) return;
+            var k = Key(a, b);
+            kinds.TryGetValue(k, out var before);
+            before = before ?? "Neutral";
+            goodwill[k] = kind == "Ally" ? RFSettings.AllyAt : kind == "Hostile" ? RFSettings.HostileAt : 0;
+            kinds[k] = kind;
+            dirty = true;
+            if (before != kind)
+                Route(new Msg("News", "*", new XElement("news", "RelationChanged"),
+                    new XElement("a", a), new XElement("b", b), new XElement("kind", kind), new XElement("previous", before)));
             BroadcastRoster();
         }
 

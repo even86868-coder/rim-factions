@@ -32,6 +32,8 @@
   <RF_OfflineSuffix>(offline: arrives when they're back)</RF_OfflineSuffix>
   <RF_Colonists>colonists</RF_Colonists>
   <RF_GoodwillShort>Goodwill {0} ({1})</RF_GoodwillShort>
+  <RF_SetRelation>Set relation</RF_SetRelation>
+  <RF_SetRelationOption>{0} and {1}: {2}</RF_SetRelationOption>
   <RF_Kind_Neutral>neutral</RF_Kind_Neutral>
   <RF_Kind_Hostile>hostile</RF_Kind_Hostile>
   <RF_Kind_Ally>allied</RF_Kind_Ally>

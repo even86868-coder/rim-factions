@@ -221,6 +221,20 @@ namespace RimFactions
             foreach (var m in list) OnNews(m);
         }
 
+
+        /// feature:RelationCheat — when a relation involving me changes, that colony's faction in my game follows.
+        /// Skipped inside a live shared game (it would change one player's game only) and while a visit is on.
+        static void ApplyRelation(string a, string b, string kind)
+        {
+            if (Current.ProgramState != ProgramState.Playing || Live.InSession) return;
+            var other = a == Link.MyId ? b : b == Link.MyId ? a : null;
+            var comp = Current.Game?.GetComponent<RFGameComp>();
+            if (other == null || comp == null || !comp.remoteFactions.TryGetValue(other, out var f) || f == null) return;
+            if (!Find.FactionManager.AllFactionsListForReading.Contains(f)) return;
+            var rel = kind == "Hostile" ? FactionRelationKind.Hostile : kind == "Ally" ? FactionRelationKind.Ally : FactionRelationKind.Neutral;
+            RemoteFactions.SetRelation(f, rel);
+        }
+
         public static void OnNews(Msg m)
         {
             if (Current.ProgramState != ProgramState.Playing || Live.InSession) { pending.Add(m); return; }
@@ -247,6 +261,7 @@ namespace RimFactions
                     text = "RF_NewsReturnText".Translate(N("from"), N("to"), m.Get("survivors"), m.Get("dead"), m.Get("captured"));
                     break;
                 case "RelationChanged":
+                    ApplyRelation(m.Get("a"), m.Get("b"), m.Get("kind"));
                     label = "RF_NewsRelationLabel".Translate(); def = m.Get("kind") == "Hostile" ? LetterDefOf.NegativeEvent : LetterDefOf.NeutralEvent;
                     text = "RF_NewsRelationText".Translate(N("a"), N("b"), ("RF_Kind_" + m.Get("kind")).Translate(), ("RF_Kind_" + m.Get("previous")).Translate());
                     break;
