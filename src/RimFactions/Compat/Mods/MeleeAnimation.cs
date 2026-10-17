@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -26,6 +27,10 @@ namespace RimFactions.Compat.Mods
             // Friendly duels for fun, and watching them.
             h.Patch(AccessTools.Method("AM.AutoDuel.JoyGiver_FriendlyDuel:TryGiveJob"), prefix: Of(nameof(NoJob)));
             h.Patch(AccessTools.Method("AM.AutoDuel.JoyGiver_SpectateFriendlyDuel:TryGiveJob"), prefix: Of(nameof(NoJob)));
+            // Idle animations (weapon twirls and such) roll the game's shared dice, but only in a game that is drawing
+            // that pawn, so the games' dice drifted apart (Desync-09). They get their own dice while live.
+            var idle = AccessTools.Method("AM.Idle.IdleControllerComp:CompTick");
+            if (idle != null) h.Patch(idle, prefix: Of(nameof(OwnDice)), finalizer: Of(nameof(SharedDice)));
 
             LiveSettings.Fix(() => AccessTools.Field("AM.Core:Settings").GetValue(null),
                 ("EnableExecutions", false), ("AutoExecute", false), ("EnemiesCanExecute", false),
@@ -39,6 +44,18 @@ namespace RimFactions.Compat.Mods
 
         static IEnumerable<FloatMenuOption> NoOptions(IEnumerable<FloatMenuOption> __result) =>
             Live ? Enumerable.Empty<FloatMenuOption>() : __result;
+
+        static void OwnDice(out bool __state)
+        {
+            __state = Live;
+            if (__state) Rand.PushState();
+        }
+
+        static Exception SharedDice(Exception __exception, bool __state)
+        {
+            if (__state) Rand.PopState();
+            return __exception;
+        }
 
         static bool NoJob(ref Job __result)
         {
