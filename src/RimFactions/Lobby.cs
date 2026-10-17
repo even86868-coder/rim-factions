@@ -118,7 +118,10 @@ namespace RimFactions
                 var comp = Current.Game.GetComponent<RFGameComp>();
                 foreach (var kv in pendingOwners) comp.SetOwner(kv.Key, kv.Value);
                 var home = Find.Maps.FirstOrDefault(m => m.IsPlayerHome);
-                foreach (var friend in pendingOwners.Values.Distinct())
+                // the host's kit came with the scenario itself: only friends get one here
+                var host = Live.MyName();
+                if (!comp.kits.Contains(host)) comp.kits.Add(host);
+                foreach (var friend in pendingOwners.Values.Distinct().Where(f => f != host))
                     StartingKit.Give(home, friend, friendScenarios.TryGetValue(friend, out var scen) ? scen : null);   // feature:StartingKit
                 friendScenarios.Clear();
                 pendingOwners.Clear();
