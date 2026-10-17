@@ -108,13 +108,22 @@ namespace RimFactions
         }
 
         /// Joins a live session from the main menu.
+        /// False when Multiplayer refused or failed; the reason is in the log.
         public static bool Connect(string connString)
         {
-            var reg = T("Multiplayer.Client.Util.ConnectorRegistry");
-            var args = new object[] { connString, null };
-            if (!(bool)AccessTools.Method(reg, "TryParse").Invoke(null, args)) return false;
-            AccessTools.Method(T("Multiplayer.Client.ClientUtil"), "TryConnectWithWindow").Invoke(null, new[] { args[1], false });
-            return true;
+            try
+            {
+                var reg = T("Multiplayer.Client.Util.ConnectorRegistry");
+                var args = new object[] { connString, null };
+                if (!(bool)AccessTools.Method(reg, "TryParse").Invoke(null, args)) return false;
+                AccessTools.Method(T("Multiplayer.Client.ClientUtil"), "TryConnectWithWindow").Invoke(null, new[] { args[1], false });
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"[Rim Factions] Multiplayer couldn't connect to {connString}: {(e.InnerException ?? e)}");
+                return false;
+            }
         }
 
         public static void ConvertToSingleplayer() =>

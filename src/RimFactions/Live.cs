@@ -23,6 +23,7 @@ namespace RimFactions
         // sender side of a live help request, waiting for the friend's answer
         public static (string tripId, string friendId, List<Pawn> pawns) pendingRequest;
         static string pendingConnect;
+        static int connectRetries;
         static float connectAt;
 
         // host side
@@ -295,7 +296,13 @@ namespace RimFactions
                 var addr = pendingConnect;
                 pendingConnect = null;
                 if (InSession) return;   // Multiplayer is already connecting this game
-                if (!MpBridge.Connect(addr)) Messages.Message("RF_ConnectFailed".Translate(addr), MessageTypeDefOf.RejectInput, false);
+                if (!MpBridge.Connect(addr))
+                {
+                    // one more try a few seconds later (Steam is sometimes not ready the first time), then tell the player
+                    if (connectRetries++ < 1) { pendingConnect = addr; connectAt = Time.realtimeSinceStartup + 5f; }
+                    else { connectRetries = 0; Messages.Message("RF_ConnectFailed".Translate(addr), MessageTypeDefOf.RejectInput, false); }
+                }
+                else connectRetries = 0;
             }
 
             if (!InSession) wasInSession = false;

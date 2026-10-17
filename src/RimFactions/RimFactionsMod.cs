@@ -96,10 +96,21 @@ namespace RimFactions
     class Driver : MonoBehaviour
     {
         void Awake() => DontDestroyOnLoad(gameObject);
+
+        static void Run(int part, Action step)
+        {
+            try { step(); }
+            catch (Exception e)
+            {
+                var real = e is System.Reflection.TargetInvocationException && e.InnerException != null ? e.InnerException : e;
+                Log.ErrorOnce($"[Rim Factions] {step.Method.DeclaringType?.Name}.{step.Method.Name}: {real}", 0x52464631 + part);
+            }
+        }
         void Update()
         {
-            try { Compat.LiveSettings.Update(); Live.Update(); ReloadSave.Update(); ModSync.MenuCheck(); Lobby.Update(); Starters.Update(); JoinWelcome.Tick(); Trade.Tick(); }
-            catch (Exception e) { Log.ErrorOnce("[Rim Factions] " + e, 0x52464631); }
+            // each part on its own, so one failing doesn't stop the others; each error is logged once, in full
+            Run(0, Compat.LiveSettings.Update); Run(1, Live.Update); Run(2, ReloadSave.Update); Run(3, ModSync.MenuCheck);
+            Run(4, Lobby.Update); Run(5, Starters.Update); Run(6, JoinWelcome.Tick); Run(7, Trade.Tick);
         }
     }
 
