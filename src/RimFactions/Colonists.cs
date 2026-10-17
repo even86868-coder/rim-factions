@@ -160,6 +160,7 @@ namespace RimFactions
             var comp = Current.Game.GetComponent<RFGameComp>();
             if (from == to || comp.owners.Contains(to)) return;
             for (int i = 0; i < comp.owners.Count; i++) if (comp.owners[i] == from) comp.owners[i] = to;
+            for (int i = 0; i < comp.kits.Count; i++) if (comp.kits[i] == from) comp.kits[i] = to;   // the kit came with them
         }
 
         public static bool TryArrive(string me)

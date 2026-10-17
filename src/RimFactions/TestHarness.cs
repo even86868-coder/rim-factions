@@ -228,6 +228,19 @@ namespace RimFactions
                     var shared = HarmonyLib.Traverse.Create(new MainTabWindow_SharedWork()).Property("Pawns").GetValue<IEnumerable<Pawn>>().Select(p => p.LabelShort);
                     Out($"  kits={string.Join(",", kc.kits)} colors={string.Join(",", kc.ownerColors.Select(k => k.Key + ":" + k.Value))} silver={Home.listerThings.ThingsOfDef(ThingDefOf.Silver).Sum(t => t.stackCount)} pods={Home.listerThings.AllThings.Count(t => t is Skyfaller)} work=[{string.Join(",", work)}] shared=[{string.Join(",", shared)}] active={OwnColonists.Active}");
                     break;
+                case "pickscen":
+                    // the friend picks a scenario in the picker (Crashlanded, or the preselected one)
+                    var pick = Find.WindowStack.WindowOfType<ScenarioPickWindow>();
+                    Out($"  picker={pick != null}");
+                    if (pick != null)
+                    {
+                        var all = HarmonyLib.Traverse.Create(pick).Field("all").GetValue<List<Scenario>>();
+                        var sel = all.FirstOrDefault(sc => sc.name == (a.Length > 1 ? string.Join(" ", a.Skip(1)) : "")) ?? HarmonyLib.Traverse.Create(pick).Field("selected").GetValue<Scenario>();
+                        Out($"  picked {sel?.name}");
+                        pick.Close();
+                        EarlyColonists.BeginWith(sel);
+                    }
+                    break;
                 case "minecount": Out($"  mine={EarlyColonists.mine?.Count.ToString() ?? "none"} state={Current.ProgramState}"); break;
                 case "friendcols":
                     foreach (var kv in Lobby.friendColonists)

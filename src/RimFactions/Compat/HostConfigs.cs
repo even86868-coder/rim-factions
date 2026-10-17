@@ -21,7 +21,7 @@ namespace RimFactions.Compat
 
             // hook:AutoAcceptFriends — Multiplayer asks the host to accept every Steam joiner in a small popup; a friend
             // linked to this planet is accepted at once, so joining never hangs waiting on a popup nobody saw.
-            var pending = AccessTools.TypeByName("Multiplayer.Client.PendingPlayerWindow");
+            var pending = AccessTools.TypeByName("Multiplayer.Client.Windows.PendingPlayerWindow");
             var request = pending == null ? null : AccessTools.Inner(pending, "Request");
             var enqueue = request == null ? null : AccessTools.Method(pending, "EnqueueJoinRequest",
                 new[] { typeof(Steamworks.CSteamID), typeof(Action<,>).MakeGenericType(request, typeof(bool)) });
@@ -49,7 +49,7 @@ namespace RimFactions.Compat
 
             // Rim Factions' own settings are personal (your color, your cloud folder) or reach everyone through the
             // planet's rules anyway, so Multiplayer must neither compare them nor hand the host's to a joiner.
-            var ignored = AccessTools.Field(AccessTools.TypeByName("Multiplayer.Client.SyncConfigs"), "ignoredConfigsModIds");
+            var ignored = AccessTools.Field(AccessTools.TypeByName("Multiplayer.Client.Util.SyncConfigs"), "ignoredConfigsModIds");
             if (ignored?.GetValue(null) is string[] ids && !ids.Contains("melty.rimfactions"))
                 ignored.SetValue(null, ids.Append("melty.rimfactions").ToArray());
         }
@@ -132,7 +132,7 @@ namespace RimFactions.Compat
                 bool onlyConfigs = diff.Contains("Config sync enabled: True") && diff.Contains("Configs match: False")
                     && diff.Contains("Mod list diff: None") && diff.Contains("Files match: True");
                 // Already restarted with the host's settings once: don't loop, leave the choice to the player.
-                bool alreadyApplied = Traverse.Create(AccessTools.TypeByName("Multiplayer.Client.SyncConfigs")).Property("Applicable").GetValue<bool>();
+                bool alreadyApplied = Traverse.Create(AccessTools.TypeByName("Multiplayer.Client.Util.SyncConfigs")).Property("Applicable").GetValue<bool>();
                 if (!onlyConfigs || alreadyApplied) return;
 
                 var remote = Traverse.Create(__instance).Field("remote").GetValue();
