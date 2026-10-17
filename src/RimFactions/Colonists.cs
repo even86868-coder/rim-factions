@@ -225,6 +225,7 @@ namespace RimFactions
         {
             if (Lobby.HostMakingTogether) return HostStart(__instance);
             if (!EarlyColonists.making) return true;
+            PrepareCarefullyStart.ApplyFrom(__instance);   // Prepare Carefully was used, but Start was pressed here
             CaptureMine();
             return false;
         }
@@ -271,7 +272,8 @@ namespace RimFactions
         static bool HostStart(Page_ConfigureStartingPawns page)
         {
             if (!ReadyOrConfirmed(() => Traverse.Create(page).Method("DoNext").GetValue())) return false;
-            AddFriends();
+            // Prepare Carefully was used, but Start was pressed here: apply its colonists and gear (friends join there)
+            if (!PrepareCarefullyStart.ApplyFrom(page)) AddFriends();
             return true;
         }
 
@@ -526,6 +528,34 @@ namespace RimFactions
             foreach (var w in Find.WindowStack.Windows.Where(w => w.GetType().Namespace?.StartsWith("EdB.PrepareCarefully") == true).ToList()) w.Close(false);
             EarlyColonistsDone.CaptureMine();
             return false;
+        }
+
+        /// Start was pressed on the normal colonist page after using Prepare Carefully: its pawn and gear choices only
+        /// take effect from its own Start button, so the equipment list (weapons, armor, items, pets) was lost.
+        /// Apply them the same way here. True when it did (the host's friends were then added by PreparedPostfix).
+        public static bool ApplyFrom(Page_ConfigureStartingPawns page)
+        {
+            if (controller == null) return false;
+            try
+            {
+                var mod = AccessTools.Property(AccessTools.TypeByName("EdB.PrepareCarefully.Mod"), "Instance")?.GetValue(null);
+                var state = mod == null ? null : Traverse.Create(mod).Property("State").GetValue();
+                if (state == null || Traverse.Create(state).Property("Customizations").GetValue() == null) return false;
+                if (Traverse.Create(state).Property("OriginalPage").GetValue() != page) return false;   // left over from another game
+                var ctrl = System.Runtime.Serialization.FormatterServices.GetUninitializedObject(controller);
+                Traverse.Create(ctrl).Field("<State>k__BackingField").SetValue(state);
+                var t = Traverse.Create(ctrl);
+                t.Method("PreparePawns").GetValue();
+                t.Method("PrepareRelationships").GetValue();
+                t.Method("PrepareEquipment").GetValue();
+                Log.Message("[Rim Factions] applied Prepare Carefully's colonists and gear (Start was pressed on the colonist page)");
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                Log.Warning("[Rim Factions] couldn't apply Prepare Carefully's choices: " + (e.InnerException?.Message ?? e.Message));
+                return false;
+            }
         }
 
         /// Host: Prepare Carefully just rebuilt the starting colonists from its own list; friends' colonists join now.
