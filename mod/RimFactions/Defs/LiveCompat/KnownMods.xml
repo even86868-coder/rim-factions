@@ -284,4 +284,20 @@
     <note>the bundled Multiplayer Compatibility patch doesn't fit this version yet, so it may desync in live play; fine solo.</note>
   </RimFactions.Compat.LiveCompatDef>
 
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_ExosuitFramework</defName>
+    <label>Exosuit Framework</label>
+    <packageId>aoba.exosuit.framework</packageId>
+    <status>patched</status>
+    <note>Rim Factions syncs the ejector bay, suit turret and emergency eject buttons (the bundled pack's patch looks for old class names).</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_AutomaticParking</defName>
+    <label>Automatic Parking</label>
+    <packageId>rabiosus.vfautoparking</packageId>
+    <status>patched</status>
+    <note>Rim Factions syncs saving, clearing and driving to parking spots (the bundled pack's patch doesn't fit this version).</note>
+  </RimFactions.Compat.LiveCompatDef>
+
 </Defs>
