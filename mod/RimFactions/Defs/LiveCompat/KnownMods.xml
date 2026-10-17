@@ -78,8 +78,8 @@
     <defName>RF_LC_RimDarkFramework</defName>
     <label>RimDark 40k - Framework</label>
     <packageId>phonicmas.rimdark.frameworkcore</packageId>
-    <status>unsafe</status>
-    <note>colouring and customisation changes aren't shared between players. Make them before or after a live session.</note>
+    <status>patched</status>
+    <note>Rim Factions shares rank unlocks and accepted armor/weapon customization with everyone. Gene customization and colour presets still stay local.</note>
   </RimFactions.Compat.LiveCompatDef>
 
   <RimFactions.Compat.LiveCompatDef>
