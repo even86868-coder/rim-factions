@@ -46,6 +46,7 @@ namespace RimFactions
 
         public override void FinalizeInit()
         {
+            SaveCleanup.Run();   // before anything ticks
             Markers.Refresh();
             Net.Link.SendHello();
         }
