@@ -145,7 +145,7 @@
   <RF_EarlyWaitHost>Your colonist maker opens by itself as soon as {0} reaches their colonist page.</RF_EarlyWaitHost>
   <RF_EarlyFailed>Rim Factions couldn't open your colonist maker:\n\n{0}\n\nPlease send this to whoever helps you with the mod (your Player.log has the details). You can try again from the lobby.</RF_EarlyFailed>
   <RF_PickScenarioTitle>Pick your scenario</RF_PickScenarioTitle>
-  <RF_PickScenarioHint>Your colonists come from this scenario, and so does your starting kit. The host's is picked for you. You can make up to {0} colonists (the lobby's limit), or fewer if the scenario starts with fewer.</RF_PickScenarioHint>
+  <RF_PickScenarioHint>Your colonists come from this scenario, and so does your starting kit. The host's is picked for you. You can make up to {0} colonists (the lobby's limit), or fewer if the scenario starts with fewer. Units the scenario requires at the start (like a ghoul) come on top.</RF_PickScenarioHint>
   <RF_PickScenarioGo>Make my colonists in this scenario</RF_PickScenarioGo>
   <RF_EarlyMake>Make my colonists</RF_EarlyMake>
   <RF_EarlyRemake>Remake my colonists</RF_EarlyRemake>

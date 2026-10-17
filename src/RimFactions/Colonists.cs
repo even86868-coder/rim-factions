@@ -142,7 +142,7 @@ namespace RimFactions
             var map = Find.Maps.Where(m => m.IsPlayerHome).OrderByDescending(m => m.mapPawns.FreeColonistsSpawnedCount).FirstOrDefault();
             if (map == null) return;
             var pawns = new List<Thing>();
-            foreach (var x in XElement.Parse(pawnsXml).Elements("pawn").Take(Mathf.Max(1, RFSettings.TogetherStartPawns)))
+            foreach (var x in XElement.Parse(pawnsXml).Elements("pawn").Take(12))
             {
                 var p = PawnData.Make(x, Faction.OfPlayer);
                 comp.SetOwner(p, owner);
@@ -188,9 +188,14 @@ namespace RimFactions
         {
             if (Lobby.HostMakingTogether) Lobby.HostAtPawns();   // friends: make yours now (feature:LandTogether)
             if (!EarlyColonists.making || Find.GameInitData == null) return;
-            // the lobby's limit, and never more than my scenario starts with
-            int n = Mathf.Clamp(RFSettings.TogetherStartPawns, 1, Mathf.Max(1, Find.GameInitData.startingPawnCount));
-            Find.GameInitData.startingPawnCount = n;
+            // the lobby's limit, and never more than my scenario starts with; units the scenario requires at the start
+            // (a ghoul, say) come on top, so I still have my own colonist next to them
+            var init = Find.GameInitData;
+            int scenarioCount = Mathf.Max(1, init.startingPawnCount);
+            int Req<T>(List<T> l) where T : StartingPawnCount => l?.Where(c => c.requiredAtStart).Sum(c => c.count) ?? 0;
+            int need = Mathf.Max(1, Req(init.startingPawnsRequired) + Req(init.startingXenotypesRequired)) + Req(init.startingMutantsRequired);
+            int n = Mathf.Clamp(Mathf.Max(Mathf.Min(RFSettings.TogetherStartPawns, scenarioCount), need), 1, scenarioCount);
+            init.startingPawnCount = n;
             Messages.Message("RF_EarlyHint".Translate(n), MessageTypeDefOf.NeutralEvent, false);
         }
     }
@@ -242,7 +247,7 @@ namespace RimFactions
             confirmed = false;
             var init = Find.GameInitData;
             foreach (var (mpName, pawns) in Lobby.friendColonists.Values)
-                foreach (var x in pawns.Take(Mathf.Max(1, RFSettings.TogetherStartPawns)))
+                foreach (var x in pawns.Take(12))
                 {
                     try
                     {
