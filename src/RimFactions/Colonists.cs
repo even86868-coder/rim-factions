@@ -307,7 +307,7 @@ namespace RimFactions
 
     // ================= feature:OwnColonists =================
 
-    /// In a shared colony each player runs their own colonists: other players' colonists can't be selected or
+    /// In a shared colony each player runs their own colonists: other players' colonists can be inspected but not
     /// given orders, and the Work / Schedule / Assign tabs list only yours. Colonists nobody owns (newcomers) are
     /// everyone's. The host's rules can switch this off.
     public static class OwnColonists
@@ -345,14 +345,39 @@ namespace RimFactions
         }
     }
 
-    [HarmonyPatch(typeof(Selector), nameof(Selector.Select))]
-    static class OwnColonistsSelect
+    // Other players' colonists can be selected and inspected (mood, needs, health, gear), but not given orders:
+    // no buttons, no right-click orders, no dropping their gear. Tending, feeding and rescuing them works as usual.
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
+    static class OwnColonistsGizmos
     {
-        static bool Prefix(object obj)
+        static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> __result, Pawn __instance) =>
+            OwnColonists.Blocked(__instance) ? Enumerable.Empty<Gizmo>() : __result;
+    }
+
+    [HarmonyPatch(typeof(FloatMenuMakerMap), nameof(FloatMenuMakerMap.GetOptions))]
+    static class OwnColonistsOrders
+    {
+        static void Prefix(ref List<Pawn> selectedPawns, ref bool __state)
         {
-            if (!(obj is Pawn p) || !OwnColonists.Blocked(p)) return true;
-            OwnColonists.Tell(p);
-            return false;
+            if (selectedPawns == null || !selectedPawns.Any(OwnColonists.Blocked)) return;
+            OwnColonists.Tell(selectedPawns.First(OwnColonists.Blocked));
+            var mine = selectedPawns.Where(p => !OwnColonists.Blocked(p)).ToList();
+            if (mine.Count > 0) selectedPawns = mine; else __state = true;
+        }
+
+        static void Postfix(ref List<FloatMenuOption> __result, bool __state)
+        {
+            if (__state) __result = new List<FloatMenuOption>();
+        }
+    }
+
+    [HarmonyPatch(typeof(ITab_Pawn_Gear), "CanControl", MethodType.Getter)]
+    static class OwnColonistsGear
+    {
+        static void Postfix(ITab_Pawn_Gear __instance, ref bool __result)
+        {
+            if (__result && OwnColonists.Blocked(Traverse.Create(__instance).Property("SelPawnForGear").GetValue<Pawn>())) __result = false;
         }
     }
 

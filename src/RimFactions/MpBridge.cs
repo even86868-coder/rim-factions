@@ -23,6 +23,28 @@ namespace RimFactions
         /// hook:HostWindowDefaults counterpart for code: opens the current solo game as a live session.
         public static bool Host(string gameName)
         {
+            var host = AccessTools.Method(T("Multiplayer.Client.HostWindow"), "HostProgrammatically");
+            return (bool)host.Invoke(null, new[] { Settings(gameName) });
+        }
+
+        /// feature:LoadSaveTogether: load one of Multiplayer's own saves and host it (from the main menu).
+        public static bool HostReplay(string path, string gameName)
+        {
+            try
+            {
+                var settings = Settings(gameName);
+                var hostServer = AccessTools.Method(T("Multiplayer.Client.HostUtil"), "HostServer");
+                Action loaded = () => hostServer.Invoke(null, new[] { settings, (object)true });
+                Action cancel = GenScene.GoToMainMenu;
+                var load = AccessTools.Method(T("Multiplayer.Client.Replay"), "LoadReplay");
+                load.Invoke(null, new object[] { new System.IO.FileInfo(path), true, loaded, cancel, "MpLoading", false });
+                return true;
+            }
+            catch (Exception e) { Log.Warning("[Rim Factions] couldn't load the Multiplayer save: " + e); return false; }
+        }
+
+        static object Settings(string gameName)
+        {
             var settingsType = T("Multiplayer.Common.ServerSettings");
             var s = Activator.CreateInstance(settingsType);
             var t = Traverse.Create(s);
@@ -35,8 +57,23 @@ namespace RimFactions
             t.Field("multifaction").SetValue(false);
             t.Field("asyncTime").SetValue(false);
             t.Field("pauseOnJoin").SetValue(true);
-            var host = AccessTools.Method(T("Multiplayer.Client.HostWindow"), "HostProgrammatically");
-            return (bool)host.Invoke(null, new[] { s });
+            DevModeSynced(t);
+            return s;
+        }
+
+        /// Multiplayer only sends dev-mode actions (spawning things, editing pawns...) to everyone when the session is
+        /// hosted with its debug mode on; without it the host's dev tools changed only the host's game and desynced.
+        /// Dev mode stays the host's alone.
+        public static void DevModeSynced(Traverse settings)
+        {
+            try
+            {
+                settings.Field("debugMode").SetValue(true);
+                var scope = settings.Field("devModeScope");
+                var type = scope.GetValueType();
+                if (type != null && type.IsEnum && Enum.IsDefined(type, "HostOnly")) scope.SetValue(Enum.Parse(type, "HostOnly"));
+            }
+            catch (Exception e) { Log.Warning("[Rim Factions] couldn't turn on Multiplayer's dev mode sync: " + e.Message); }
         }
 
         static string LanIp()

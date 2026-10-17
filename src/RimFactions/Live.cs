@@ -195,8 +195,10 @@ namespace RimFactions
         {
             var comp = Comp;
             var me = AccessTools.Field(AccessTools.TypeByName("Multiplayer.Client.Multiplayer"), "username")?.GetValue(null) as string ?? Link.MyName;
-            foreach (var p in PawnsFinder.AllMaps_FreeColonists.Where(p => p.Faction == Faction.OfPlayer && comp.OwnerOf(p) == null))
-                comp.SetOwner(p, me);
+            // a colony nobody owns yet becomes the host's; a shared save keeps who owns what (newcomers stay shared)
+            if (comp.owners.Count == 0)
+                foreach (var p in PawnsFinder.AllMaps_FreeColonists.Where(p => p.Faction == Faction.OfPlayer && comp.OwnerOf(p) == null))
+                    comp.SetOwner(p, me);
             comp.togetherOpen = true;
             if (!comp.kits.Contains(me)) comp.kits.Add(me);   // feature:StartingKit: the host had the scenario's
             togetherAnnounce = true;
@@ -208,6 +210,7 @@ namespace RimFactions
         {
             var s = Roster.Together;
             if (s == null) return;
+            if (ReloadSave.Reloading) { Lobby.FollowHost(); return; }   // the host is loading a save: join once it's up
             var host = Roster.Players.FirstOrDefault(p => p.id == (string)s.Attribute("host"));
             pendingConnect = PickAddress((string)s.Attribute("steam"), (string)s.Attribute("lan"), host?.steamId);
             connectAt = Time.realtimeSinceStartup + 1f;
@@ -274,6 +277,15 @@ namespace RimFactions
         }
 
         // ================= driving it, once per frame =================
+
+        /// feature:LoadSaveTogether: the session ends on purpose, so don't tell friends it closed.
+        public static void ForgetSession() => hadSession = false;
+
+        /// feature:LoadSaveTogether: once hosting, tell friends where to join.
+        public static void AnnounceWhenHosting() => togetherAnnounce = true;
+
+        /// A join is queued or Multiplayer is connecting.
+        public static bool Connecting => pendingConnect != null || InSession;
 
         public static void Update()
         {
@@ -370,7 +382,7 @@ namespace RimFactions
                 {
                     claimed = true;
                     // feature:MakeColonistsEarly: the colonists I made while the host set up; else feature:MakeColonists
-                    if (!EarlyColonists.TryArrive(me)) Starters.Create(me);
+                    if (!EarlyColonists.TryArrive(me)) Starters.Create(me, RFSettings.TogetherStartPawns);
                 }
 
                 // split: my caravan exists, turn my copy into my own game

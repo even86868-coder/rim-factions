@@ -79,6 +79,7 @@ namespace RimFactions
                     ("Link", () => Link.Init()),
                     ("SharedSaves", () => SharedSaves.Init()),
                     ("Colonists", () => EarlyColonistsDone.Init(new Harmony("melty.rimfactions.colonists"))),
+                    ("PersonalWork", () => PersonalWork.Init(new Harmony("melty.rimfactions.personalwork"))),
                     ("TestHarness", () => TestHarness.Init()),
                     ("MeltyTest", () => MeltyTest.Init()),
                     ("Driver", () => { new GameObject("RimFactions.Driver").AddComponent<Driver>(); }),
@@ -97,7 +98,7 @@ namespace RimFactions
         void Awake() => DontDestroyOnLoad(gameObject);
         void Update()
         {
-            try { Compat.LiveSettings.Update(); Live.Update(); Lobby.Update(); Starters.Update(); JoinWelcome.Tick(); Trade.Tick(); }
+            try { Compat.LiveSettings.Update(); Live.Update(); ReloadSave.Update(); Lobby.Update(); Starters.Update(); JoinWelcome.Tick(); Trade.Tick(); }
             catch (Exception e) { Log.ErrorOnce("[Rim Factions] " + e, 0x52464631); }
         }
     }
@@ -128,6 +129,7 @@ namespace RimFactions
                 var settings = Traverse.Create(__instance).Field("serverSettings");
                 settings.Field("maxPlayers").SetValue(RFSettings.MaxPlayers);
                 if (SteamManager.Initialized) settings.Field("steam").SetValue(true);
+                MpBridge.DevModeSynced(settings);
             }
             catch (Exception e) { Log.Warning("[Rim Factions] host defaults failed: " + e.Message); }
         }

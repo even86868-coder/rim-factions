@@ -21,6 +21,8 @@ namespace RimFactions
         public List<string> kits = new List<string>();
         public Dictionary<string, string> ownerColors = new Dictionary<string, string>();   // feature:PlayerColors: session name -> hex                               // feature:StartingKit: players who got theirs
         public List<Pawn> starters = new List<Pawn>();                              // feature:MakeColonists (held in awayHolder)
+        public Dictionary<string, string> orderOwners = new Dictionary<string, string>();   // feature:PersonalWork: order key -> player who gave it
+        public HashSet<string> personalWork = new HashSet<string>();                // feature:PersonalWork: players whose colonists only do their orders
 
         List<string> rfKeys; List<Faction> rfValues;
 
@@ -61,6 +63,8 @@ namespace RimFactions
             Scribe_Collections.Look(ref starters, "rfStarters", LookMode.Reference);
             Scribe_Collections.Look(ref kits, "rfKits", LookMode.Value);
             Scribe_Collections.Look(ref ownerColors, "rfOwnerColors", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref orderOwners, "rfOrderOwners", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref personalWork, "rfPersonalWork", LookMode.Value);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 away = away ?? new List<AwayTrip>();
@@ -73,6 +77,8 @@ namespace RimFactions
                 starters = starters?.Where(p => p != null).ToList() ?? new List<Pawn>();
                 kits = kits ?? new List<string>();
                 ownerColors = ownerColors ?? new Dictionary<string, string>();
+                orderOwners = orderOwners ?? new Dictionary<string, string>();
+                personalWork = personalWork ?? new HashSet<string>();
                 for (int i = ownedPawns.Count - 1; i >= 0; i--)
                     if (ownedPawns[i] == null) { ownedPawns.RemoveAt(i); owners.RemoveAt(i); }
             }

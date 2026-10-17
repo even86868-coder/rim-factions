@@ -94,6 +94,7 @@ namespace RimFactions
                 {
                     if (l.ButtonText("RF_InviteTogether".Translate())) { Close(); Compat.LiveCompat.ConfirmLive(Live.OpenTogether); }
                 }
+                if (ReloadSave.CanUse && l.ButtonText("RF_ReloadOpen".Translate())) { Close(); Find.WindowStack.Add(new ReloadSaveWindow()); }
                 if (Live.InSession && MpBridge.Hosting && Current.Game.GetComponent<RFGameComp>().liveVisits.Any(v => !v.done))
                 {
                     if (l.ButtonText("RF_EndVisits".Translate())) Live.EndVisits();

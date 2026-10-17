@@ -155,7 +155,16 @@
   <RF_EarlyHave>Your {0} colonists are ready. They drop into the colony when you join.</RF_EarlyHave>
   <RF_EarlyHint>Make your {0} colonists for the shared colony. Press Start when you're happy: that's your ready.</RF_EarlyHint>
   <RF_EarlyReady>You're ready: your {0} colonists went to the host and land with theirs. You'll join as soon as the colony is up.</RF_EarlyReady>
-  <RF_NotYourColonist>{0} is {1}'s colonist.</RF_NotYourColonist>
+  <RF_NotYourColonist>{0} is {1}'s colonist: you can look, but only {1} gives orders.</RF_NotYourColonist>
+  <RF_ReloadOpen>Load a save for everyone...</RF_ReloadOpen>
+  <RF_ReloadTitle>Load a save for everyone</RF_ReloadTitle>
+  <RF_ReloadHint>Pick a save. Your friends leave this game, you load the save and host it, and they rejoin by themselves.</RF_ReloadHint>
+  <RF_ReloadMp>Multiplayer save</RF_ReloadMp>
+  <RF_ReloadSp>RimWorld save</RF_ReloadSp>
+  <RF_ReloadConfirm>Load "{0}" for everyone? Anything not saved in this game is lost.</RF_ReloadConfirm>
+  <RF_ReloadFriend>{0} is loading another save. You'll rejoin by yourself in a moment.</RF_ReloadFriend>
+  <RF_PersonalWork>My colonists only work on my orders</RF_PersonalWork>
+  <RF_PersonalWorkDesc>When on, your colonists skip buildings, designations (mining, chopping, hauling orders...) and workbench bills that another player ordered. Shared colonists still work on everyone's orders, and work nobody ordered (cleaning, firefighting, hauling) stays open to all. Each player has their own switch.</RF_PersonalWorkDesc>
   <RF_SetOwnColonists>Shared colony: each player controls only their own colonists</RF_SetOwnColonists>
   <RF_MakeTitle>Make your colonists</RF_MakeTitle>
   <RF_MakeHint>These are yours. Randomize until you like them, rename them, then drop them into the colony.</RF_MakeHint>

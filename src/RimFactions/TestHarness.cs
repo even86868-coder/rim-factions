@@ -253,9 +253,37 @@ namespace RimFactions
                     {
                         Find.Selector.ClearSelection();
                         Find.Selector.Select(p, false);
-                        Out($"  select {p.LabelShort} owner={oc.OwnerOf(p)} -> selected={Find.Selector.IsSelected(p)}");
+                        var orders = FloatMenuMakerMap.GetOptions(new List<Pawn> { p }, p.Position.ToVector3Shifted() + new Vector3(2, 0, 0), out _);
+                        Out($"  select {p.LabelShort} owner={oc.OwnerOf(p)} -> selected={Find.Selector.IsSelected(p)} gizmos={p.GetGizmos().Count()} orders={orders.Count}");
                     }
                     Find.Selector.ClearSelection();
+                    break;
+                case "pwon":   // feature:PersonalWork: switch mine on/off
+                    PersonalWork.SetPersonal(MpBridge.MyUsername, a.Length < 2 || a[1] != "off");
+                    break;
+                case "pwbuild":   // place a wall blueprint through the designator (synced, so it carries who ordered it)
+                    var wallCell = Home.mapPawns.FreeColonistsSpawned.First().Position + new IntVec3(int.Parse(a[1]), 0, 3);
+                    var des = new Designator_Build(ThingDefOf.Wall);
+                    des.SetStuffDef(ThingDefOf.WoodLog);
+                    des.DesignateSingleCell(wallCell);
+                    Out($"  placed wall at {wallCell}");
+                    break;
+                case "pwcheck":
+                    var pc = Current.Game.GetComponent<RFGameComp>();
+                    Out($"  personal=[{string.Join(",", pc.personalWork)}] orders={pc.orderOwners.Count}");
+                    foreach (var bp in Home.listerThings.ThingsInGroup(ThingRequestGroup.Blueprint).Concat(Home.listerThings.ThingsInGroup(ThingRequestGroup.BuildingFrame)))
+                    {
+                        pc.orderOwners.TryGetValue(PersonalWork.ThingKey(bp), out var by);
+                        Out($"  {bp.LabelShort} at {bp.Position} by={by} " + string.Join(" ", Home.mapPawns.FreeColonistsSpawned.Select(p => $"{p.LabelShort}({pc.OwnerOf(p)}):{(bp.IsForbidden(p) ? "no" : "ok")}")));
+                    }
+                    break;
+                case "devmode":
+                    var ss = HarmonyLib.Traverse.Create(HarmonyLib.AccessTools.TypeByName("Multiplayer.Client.Multiplayer")).Property("LocalServer").Field("settings");
+                    Out($"  debugMode={ss.Field("debugMode").GetValue()} scope={ss.Field("devModeScope").GetValue()}");
+                    break;
+                case "reload":   // feature:LoadSaveTogether: load the newest save of this name for everyone
+                    var save = ReloadSave.Saves().FirstOrDefault(t => System.IO.Path.GetFileNameWithoutExtension(t.file.Name) == a[1]);
+                    if (save.file == null) Out("  no save " + a[1]); else ReloadSave.Start(save.file, save.mp);
                     break;
                 case "langerrors":
                     foreach (var le in LanguageDatabase.activeLanguage.loadErrors) Out("  lang: " + le);

@@ -127,6 +127,7 @@ namespace RimFactions
                 pendingOwners.Clear();
                 friendColonists.Clear();
             }
+            SendState(true, Mode, Relation, true, "playing");   // past the colonist page: friends' makers stay shut
             if (mode == Together)
                 LongEventHandler.ExecuteWhenFinished(() => { if (Find.Maps.Any(m => m.IsPlayerHome)) Live.OpenTogether(); });
             // Separate: friends start their own colonies as soon as the planet shows up in the roster.
@@ -177,6 +178,9 @@ namespace RimFactions
         }
 
         /// host: Start from inside a game leaves it first.
+        /// feature:LoadSaveTogether: rejoin the host as soon as their session is back up.
+        public static void FollowHost() => asked = "join";
+
         public static void StartFromAnywhere()
         {
             if (Current.ProgramState != ProgramState.Playing) { Start(); return; }
@@ -188,7 +192,7 @@ namespace RimFactions
             if (Time.realtimeSinceStartup < nextLook) return;
             nextLook = Time.realtimeSinceStartup + 0.5f;
             // whoever I asked said yes: follow them in
-            if (asked == "join" && Roster.Together != null && !Live.InSession && Current.ProgramState != ProgramState.Playing && !LongEventHandler.AnyEventNowOrWaiting)
+            if (asked == "join" && Roster.Together != null && !ReloadSave.Reloading && !Live.InSession && Current.ProgramState != ProgramState.Playing && !LongEventHandler.AnyEventNowOrWaiting)
             { asked = null; Live.JoinTogether(); }
             if (!IsOpen) { acted = false; return; }
             if (Current.ProgramState != ProgramState.Entry || LongEventHandler.AnyEventNowOrWaiting || Find.WindowStack == null) return;
@@ -205,7 +209,7 @@ namespace RimFactions
                 return;
             }
             // the host is on the colonist page: mine opens by itself (feature:LandTogether)
-            if (Mode == Together && Stage == "pawns" && EarlyColonists.mine == null && !EarlyColonists.making && !EarlyColonists.failed && IAmIn
+            if (Mode == Together && Stage == "pawns" && Roster.Together == null && !Live.InSession && !Live.Connecting && EarlyColonists.mine == null && !EarlyColonists.making && !EarlyColonists.failed && IAmIn
                 && !Find.WindowStack.Windows.Any(w => w is Page))
                 EarlyColonists.Begin();
             if (acted || !(IAmIn || Find.WindowStack.IsOpen<LobbyWindow>())) return;
@@ -421,11 +425,12 @@ namespace RimFactions
         public static List<Pawn> Of(string owner) => Comp?.starters.Where(p => Comp.OwnerOf(p) == owner).ToList() ?? new List<Pawn>();
 
         [SyncMethod]
-        public static void Create(string owner)
+        public static void Create(string owner, int count)
         {
             var comp = Current.Game.GetComponent<RFGameComp>();
             if (!comp.togetherOpen || comp.owners.Contains(owner)) return;
-            for (int i = 0; i < RFSettings.TogetherStartPawns; i++)
+            // the count comes with the command: each game's own setting could differ (that desynced)
+            for (int i = 0; i < Mathf.Clamp(count, 1, 12); i++)
             {
                 var p = Generate(null);
                 comp.SetOwner(p, owner);

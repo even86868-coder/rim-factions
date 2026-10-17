@@ -100,6 +100,7 @@ namespace RimFactions
         public static void Buttons(Listing_Standard l)
         {
             if (!Live.InSession || MpBridge.MyUsername == null) return;
+            PersonalWork.Toggle(l.GetRect(24f));
             var sel = SelectedColonists();
             var comp = Current.Game.GetComponent<RFGameComp>();
             if (sel.Any(p => comp.OwnerOf(p) == null) && l.ButtonText("RF_ClaimSelected".Translate(sel.Count(p => comp.OwnerOf(p) == null))))
