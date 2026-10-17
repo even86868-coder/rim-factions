@@ -246,7 +246,7 @@ namespace RimFactions.Net
             var m = new Msg("Hello", "hub",
                 new XElement("player", Link.MyName),
                 new XElement("steamId", SteamTransport.MyId),
-                new XElement("version", "0.4.0"),
+                new XElement("version", RimFactionsMod.Version),   // system:VersionCheck
                 new XElement("boot", Boot),   // a new value each time the game starts (hook:DropGhosts)
                 Dlc.HelloElement());
             if (Lobby.MyColor is Color mine) m.x.Add(new XElement("color", ColorUtility.ToHtmlStringRGB(mine)));

@@ -13,7 +13,7 @@ namespace RimFactions
     /// One player on the planet, as the hub last reported it.
     public class Friend
     {
-        public string id, player, colony, faction;
+        public string id, player, colony, faction, version;
         public Color color = Color.white;
         public int tile = -1, colonists, wealth;
         public bool online;
@@ -66,6 +66,7 @@ namespace RimFactions
                     wealth = (int?)p.Element("wealth") ?? 0,
                     dlcs = p.Element("dlcs") is XElement d ? d.Value.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries).ToList() : null,
                     layer = (string)p.Element("layer"),
+                    version = (string)p.Element("version"),
                 };
                 if (ColorUtility.TryParseHtmlString("#" + (string)p.Element("color"), out var c)) f.color = c;
                 return f;
@@ -83,6 +84,7 @@ namespace RimFactions
                 Rules.HostName = Get(HubId)?.player;
             }
             Markers.Refresh();
+            VersionCheck.Check();
         }
 
         /// Asks the hub to change goodwill between me and a friend.
@@ -272,6 +274,44 @@ namespace RimFactions
                 default: return;
             }
             Find.LetterStack.ReceiveLetter(label, text, def);
+        }
+    }
+}
+
+namespace RimFactions
+{
+    /// system:VersionCheck — playing together needs the exact same Rim Factions on every PC. When the planet host's
+    /// version differs from mine, say so once (and show it in the lobby / welcome window) before anything loads.
+    public static class VersionCheck
+    {
+        static string warnedFor;
+
+        /// The host's version when it differs from mine, else null.
+        public static string Mismatch
+        {
+            get
+            {
+                var host = Roster.Get(Roster.HubId);
+                if (host == null || host.IsMe || host.version.NullOrEmpty() || host.version == RimFactionsMod.Version) return null;
+                return host.version;
+            }
+        }
+
+        public static void Check()
+        {
+            var other = Mismatch;
+            if (other == null || warnedFor == other) return;
+            warnedFor = other;
+            Find.WindowStack?.Add(new Dialog_MessageBox("RF_VersionMismatch".Translate(Roster.Get(Roster.HubId)?.player ?? "?", other, RimFactionsMod.Version)));
+        }
+
+        public static void Line(Verse.Listing_Standard l)
+        {
+            var other = Mismatch;
+            if (other == null) return;
+            UnityEngine.GUI.color = new UnityEngine.Color(1f, 0.45f, 0.4f);
+            l.Label("RF_VersionMismatchShort".Translate(Roster.Get(Roster.HubId)?.player ?? "?", other, RimFactionsMod.Version));
+            UnityEngine.GUI.color = UnityEngine.Color.white;
         }
     }
 }

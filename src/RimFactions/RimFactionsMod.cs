@@ -48,11 +48,15 @@ namespace RimFactions
     {
         public override string SettingsCategory() => "Rim Factions";
 
+        /// This game's Rim Factions version (About.xml modVersion).
+        public static string Version = "?";
+
         public override void DoSettingsWindowContents(Rect inRect) => Rules.Draw(inRect);
 
         public RimFactionsMod(ModContentPack content) : base(content)
         {
             Rules.Local = GetSettings<RimFactionsSettings>();
+            Version = content?.ModMetaData?.ModVersion ?? "?";
             new Harmony("melty.rimfactions").PatchAll();
             HostPatches.Apply(new Harmony("melty.rimfactions.mp"));
             if (MP.enabled) MP.RegisterAll();

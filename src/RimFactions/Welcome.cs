@@ -56,6 +56,7 @@ namespace RimFactions
             Text.Font = GameFont.Small;
             var others = Roster.Others.Select(f => f.Label).ToList();
             l.Label("RF_WelcomeText".Translate(others.Count > 0 ? string.Join(", ", others) : "-"));
+            VersionCheck.Line(l);
             l.Gap();
 
             var liveMismatch = Dlc.LiveMismatch(host);

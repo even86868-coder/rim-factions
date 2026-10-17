@@ -147,6 +147,9 @@
   <RF_PickScenarioTitle>Pick your scenario</RF_PickScenarioTitle>
   <RF_PickScenarioHint>Your colonists come from this scenario, and so does your starting kit. The host's is picked for you. You can make up to {0} colonists (the lobby's limit), or fewer if the scenario starts with fewer. Units the scenario requires at the start (like a ghoul) come on top.</RF_PickScenarioHint>
   <RF_PickScenarioGo>Make my colonists in this scenario</RF_PickScenarioGo>
+  <RF_VersionMismatch>{0} has Rim Factions {1}, you have {2}.\n\nPlaying together needs exactly the same version on every PC, or games break (missing colonists, desyncs). Close RimWorld, run the Rim Factions Updater (Install / Update) on both PCs, then start again.</RF_VersionMismatch>
+  <RF_VersionMismatchShort>Version mismatch: {0} has Rim Factions {1}, you have {2}. Both run the Updater before playing together.</RF_VersionMismatchShort>
+  <RF_FilesDiffer>Your mod files are different from the host's.\n\nDon't press "Connect anyway": with different files the two games run different code, and things break (the host's colonists can vanish, desyncs). Instead:\n\n1. Open the Files tab in this window: it lists the mods that differ.\n2. Rim Factions, Multiplayer or Prepatcher listed: run the Rim Factions Updater on both PCs (yours: {1}).\n3. Workshop mods listed: in Steam, Library > Downloads, let updates finish on both PCs; if one still differs, unsubscribe and resubscribe to it.</RF_FilesDiffer>
   <RF_EarlyMake>Make my colonists</RF_EarlyMake>
   <RF_EarlyRemake>Remake my colonists</RF_EarlyRemake>
   <RF_EarlyHave>Your {0} colonists are ready. They drop into the colony when you join.</RF_EarlyHave>

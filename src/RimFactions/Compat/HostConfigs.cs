@@ -127,6 +127,8 @@ namespace RimFactions.Compat
             try
             {
                 var diff = Traverse.Create(__instance).Method("DiffString").GetValue<string>();
+                if (diff.Contains("Files match: False"))
+                    Find.WindowStack.Add(new Dialog_MessageBox("RF_FilesDiffer".Translate(VersionCheck.Mismatch ?? RimFactionsMod.Version, RimFactionsMod.Version)));
                 bool onlyConfigs = diff.Contains("Config sync enabled: True") && diff.Contains("Configs match: False")
                     && diff.Contains("Mod list diff: None") && diff.Contains("Files match: True");
                 // Already restarted with the host's settings once: don't loop, leave the choice to the player.

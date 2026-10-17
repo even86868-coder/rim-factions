@@ -306,6 +306,7 @@ namespace RimFactions
             if (!Lobby.IsOpen && !Lobby.IAmHost) { l.Label("RF_LobbyClosed".Translate()); l.End(); return; }
             var hostName = Roster.Get(Roster.HubId)?.player ?? "?";
             l.Label(Lobby.IAmHost ? "RF_LobbyHostHint".Translate() : "RF_LobbyGuestHint".Translate(hostName));
+            VersionCheck.Line(l);
             l.GapLine();
 
             // how the game starts
