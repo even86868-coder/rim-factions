@@ -225,7 +225,7 @@
     <label>Smarter Construction</label>
     <packageId>dhultgren.smarterconstruction</packageId>
     <status>patched</status>
-    <note>Rim Factions turns its caching off while live (the bundled pack's patch doesn't fit newer versions); solo play keeps it.</note>
+    <note>while live its job changes are off (its unsaved caches desynced joiners); solo play keeps the whole mod.</note>
   </RimFactions.Compat.LiveCompatDef>
 
   <RimFactions.Compat.LiveCompatDef>
