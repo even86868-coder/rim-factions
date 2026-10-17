@@ -191,6 +191,16 @@ namespace RimFactions
                     EarlyColonists.mine = Enumerable.Repeat(renamed.ToString(), 2).ToList();
                     break;
                 case "sendmine": EarlyColonists.SendToHost(); break;
+                case "earlybegin": EarlyColonists.mine = null; EarlyColonists.Begin(); break;
+                case "pagestatus":
+                    var pg = Find.WindowStack.WindowOfType<Page_ConfigureStartingPawns>();
+                    Out($"  page={pg != null} state={Current.ProgramState} scenario={Find.Scenario?.name} pawns={(Find.GameInitData == null ? "-" : Find.GameInitData.startingPawnCount + ":" + string.Join(",", Find.GameInitData.startingAndOptionalPawns.Select(p => p.LabelShort)))} windows={string.Join(",", Find.WindowStack.Windows.Select(w => w.GetType().Name))}");
+                    break;
+                case "earlydone":
+                    var page2 = Find.WindowStack.WindowOfType<Page_ConfigureStartingPawns>();
+                    if (page2 != null) HarmonyLib.Traverse.Create(page2).Method("DoNext").GetValue();
+                    break;
+                case "minecount": Out($"  mine={EarlyColonists.mine?.Count.ToString() ?? "none"} state={Current.ProgramState}"); break;
                 case "friendcols":
                     foreach (var kv in Lobby.friendColonists)
                         Out($"  from {kv.Key} mp={kv.Value.mpName} pawns={string.Join(",", kv.Value.pawns.Select(x => PawnData.Make(x, Faction.OfPlayer).LabelShort))}");

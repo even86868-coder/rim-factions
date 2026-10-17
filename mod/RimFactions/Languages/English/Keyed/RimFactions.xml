@@ -138,10 +138,11 @@
   <RF_PawnPageReady>{0}: ready</RF_PawnPageReady>
   <RF_PawnPageMaking>{0}: still making colonists...</RF_PawnPageMaking>
   <RF_PawnPageStartWithout>Not ready yet: {0}. Start anyway? They'll make colonists when they join.</RF_PawnPageStartWithout>
+  <RF_EarlyPreparing>Getting your colonist creation ready...</RF_EarlyPreparing>
   <RF_EarlyMake>Make my colonists now (while the host sets up)</RF_EarlyMake>
   <RF_EarlyRemake>Remake my colonists</RF_EarlyRemake>
   <RF_EarlyHave>Your {0} colonists are ready. They drop into the colony when you join.</RF_EarlyHave>
-  <RF_EarlyHint>Making your {0} colonists for the shared colony. Pick any scenario and spot: only your colonists are kept.</RF_EarlyHint>
+  <RF_EarlyHint>Make your {0} colonists for the shared colony. Press Start when you're happy: that's your ready.</RF_EarlyHint>
   <RF_EarlyReady>You're ready: your {0} colonists went to the host and land with theirs. You'll join as soon as the colony is up.</RF_EarlyReady>
   <RF_NotYourColonist>{0} is {1}'s colonist.</RF_NotYourColonist>
   <RF_SetOwnColonists>Shared colony: each player controls only their own colonists</RF_SetOwnColonists>

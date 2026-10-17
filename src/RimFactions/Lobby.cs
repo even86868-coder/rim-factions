@@ -39,17 +39,25 @@ namespace RimFactions
 
         public static void Open() => SendState(true, Together, "Ally", false);
 
-        public static void SendState(bool open, string mode, string relation, bool started, string stage = "") =>
+        public static void SendState(bool open, string mode, string relation, bool started, string stage = "", params XAttribute[] extra) =>
             Link.Send(new Msg("Lobby", "hub", new XElement("lobby", new XAttribute("open", open), new XAttribute("mode", mode),
                 new XAttribute("relation", relation), new XAttribute("started", started), new XAttribute("host", Link.MyId),
-                new XAttribute("stage", stage ?? ""))));
+                new XAttribute("stage", stage ?? ""), extra)));
 
         // ---- landing together (feature:LandTogether) ----
 
         /// "pawns" once the host is on RimWorld's colonist page.
         public static string Stage => (string)State?.Attribute("stage") ?? "";
         public static bool HostMakingTogether => IAmHost && hostSettingUp == Together;
-        public static void HostAtPawns() => SendState(true, Mode, Relation, true, "pawns");
+        /// The host is on the colonist page: friends make theirs now, with the host's scenario and storyteller.
+        public static void HostAtPawns() => SendState(true, Mode, Relation, true, "pawns",
+            new XAttribute("scenario", Find.Scenario?.name ?? ""),
+            new XAttribute("storyteller", Find.Storyteller?.def?.defName ?? ""),
+            new XAttribute("difficulty", Find.Storyteller?.difficultyDef?.defName ?? ""));
+
+        public static string HostScenario => (string)State?.Attribute("scenario");
+        public static string HostStoryteller => (string)State?.Attribute("storyteller");
+        public static string HostDifficulty => (string)State?.Attribute("difficulty");
 
         /// host: each friend's finished colonists (their Multiplayer name, their colonists as PawnData).
         public static readonly Dictionary<string, (string mpName, List<XElement> pawns)> friendColonists = new Dictionary<string, (string, List<XElement>)>();

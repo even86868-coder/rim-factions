@@ -5,6 +5,7 @@ using HarmonyLib;
 using Multiplayer.API;
 using RimFactions.Net;
 using RimWorld;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
@@ -59,12 +60,38 @@ namespace RimFactions
             return name.NullOrEmpty() ? Link.MyName : name;
         }
 
+        /// Straight to the colonist page: no scenario, storyteller, world or landing-site screens. Like RimWorld's own
+        /// quick start, a small private setup is made in the background with the host's scenario and storyteller (they
+        /// decide what kind of colonists you can make); only the colonists are kept, and they land in the host's world.
         public static void Begin()
         {
             making = true;
-            WorldParams.usePlanet = Roster.World != null;   // the host's planet when it's known already; it doesn't matter for colonists
             Find.WindowStack.WindowOfType<LobbyWindow>()?.Close(false);
-            Find.WindowStack.Add(new Page_SelectScenario());
+            LongEventHandler.QueueLongEvent(() =>
+            {
+                Current.ProgramState = ProgramState.Entry;
+                Game.ClearCaches();
+                Current.Game = new Game();
+                Current.Game.InitData = new GameInitData();
+                Current.Game.Scenario = (HostScenarioDef() ?? ScenarioDefOf.Crashlanded.scenario).CopyForEditing();
+                Find.Scenario.PreConfigure();
+                var teller = DefDatabase<StorytellerDef>.GetNamedSilentFail(Lobby.HostStoryteller ?? "") ?? StorytellerDefOf.Cassandra;
+                var difficulty = DefDatabase<DifficultyDef>.GetNamedSilentFail(Lobby.HostDifficulty ?? "") ?? DifficultyDefOf.Rough;
+                Current.Game.storyteller = new Storyteller(teller, difficulty);
+                Current.Game.World = WorldGenerator.GenerateWorld(0.05f, GenText.RandomSeedString(), OverallRainfall.Normal,
+                    OverallTemperature.Normal, OverallPopulation.Normal, LandmarkDensity.Normal);
+                Find.GameInitData.ChooseRandomStartingTile();
+                Find.GameInitData.mapSize = 250;
+                Find.Scenario.PostIdeoChosen();
+            }, "RF_EarlyPreparing", false, e => { making = false; Log.Error("[Rim Factions] preparing colonist creation failed: " + e); });
+            LongEventHandler.ExecuteWhenFinished(() => { if (making) Find.WindowStack.Add(new Page_ConfigureStartingPawns()); });
+        }
+
+        static Scenario HostScenarioDef()
+        {
+            var name = Lobby.HostScenario;
+            if (name.NullOrEmpty()) return null;
+            return ScenarioLister.AllScenarios().FirstOrDefault(s => s.name == name);
         }
 
         /// Synced: my colonists from my creation screen join the colony, in every game identically.
