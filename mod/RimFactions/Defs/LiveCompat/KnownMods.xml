@@ -300,4 +300,12 @@
     <note>Rim Factions syncs saving, clearing and driving to parking spots (the bundled pack's patch doesn't fit this version).</note>
   </RimFactions.Compat.LiveCompatDef>
 
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_MapPreview</defName>
+    <label>Map Preview</label>
+    <packageId>m00nl1ght.mappreview</packageId>
+    <status>patched</status>
+    <note>no world-tile previews while live (it rolled the game's dice on a background thread); solo play keeps them.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
 </Defs>
