@@ -184,6 +184,7 @@
   <RF_ModSyncPrompt>Your mods don't match {0}'s ({1} different). Joining {0} would make Multiplayer restart your game with their mods every time.
 
 Switch to {0}'s mod list now? RimWorld restarts once, and after that joining is quick. Your own list is saved and can be restored.</RF_ModSyncPrompt>
+  <RF_ModSyncTurnsOff>These of your mods would be switched off: {0}. Don't load a save that uses them without them: their buildings, vehicles and pawns would be lost from it.</RF_ModSyncTurnsOff>
   <RF_NotNow>Not now</RF_NotNow>
   <RF_ModSyncOrderOnly>same mods, different order</RF_ModSyncOrderOnly>
   <RF_ModSyncTitle>Matching {0}'s mods</RF_ModSyncTitle>

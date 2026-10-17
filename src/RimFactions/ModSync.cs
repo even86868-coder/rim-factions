@@ -89,8 +89,11 @@ namespace RimFactions
             if (plan.same) return;
             var mine = ModsConfig.ActiveModsInLoadOrder.Select(m => m.PackageIdPlayerFacing.ToLowerInvariant()).ToList();
             int differ = plan.order.Except(mine).Count() + mine.Except(plan.order).Count();
-            Find.WindowStack.Add(new Dialog_MessageBox("RF_ModSyncPrompt".Translate(host.player, differ == 0 ? "RF_ModSyncOrderOnly".Translate().ToString() : differ.ToString()),
-                "RF_ModSyncButton".Translate(host.player), () => Start(host), "RF_NotNow".Translate()));
+            var text = "RF_ModSyncPrompt".Translate(host.player, differ == 0 ? "RF_ModSyncOrderOnly".Translate().ToString() : differ.ToString()).ToString();
+            // say plainly what would be switched off: a save that uses those mods loses their things if loaded without them
+            var off = mine.Except(plan.order).Select(id => ModLister.GetModWithIdentifier(id, ignorePostfix: true)?.Name ?? id).ToList();
+            if (off.Count > 0) text += "\n\n" + "RF_ModSyncTurnsOff".Translate(string.Join(", ", off));
+            Find.WindowStack.Add(new Dialog_MessageBox(text, "RF_ModSyncButton".Translate(host.player), () => Start(host), "RF_NotNow".Translate()));
         }
 
         public static void ConfirmRestore() =>
