@@ -44,6 +44,8 @@ namespace RimFactions
 
         public override void StartedNewGame() => Lobby.HostGameStarted();
 
+        public override void GameComponentTick() => SyncCheck.Tick();   // read-only fingerprints while live
+
         public override void FinalizeInit()
         {
             SaveCleanup.Run();   // before anything ticks
