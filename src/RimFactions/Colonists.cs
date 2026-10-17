@@ -253,6 +253,9 @@ namespace RimFactions
                     {
                         var p = PawnData.Make(x, Faction.OfPlayer);
                         init.startingAndOptionalPawns.Insert(init.startingPawnCount, p);
+                        // every starting colonist needs an entry here, or placing the colonists on the map fails part-way
+                        // (their own items come with their starting kit instead)
+                        init.startingPossessions[p] = new List<ThingDefCount>();
                         init.startingPawnCount++;
                         Lobby.pendingOwners[p] = mpName;
                     }

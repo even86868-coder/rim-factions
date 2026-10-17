@@ -192,6 +192,27 @@ namespace RimFactions
                     EarlyColonists.mine = Enumerable.Repeat(renamed.ToString(), 2).ToList();
                     break;
                 case "sendmine": EarlyColonists.SendToHost(); break;
+                case "hostquick":
+                    // the host's side of "start together": lobby started, a quick setup, the colonist page with the real game start behind it
+                    Lobby.SendState(true, Lobby.Together, "Ally", true);
+                    HarmonyLib.Traverse.Create(typeof(Lobby)).Field("hostSettingUp").SetValue(Lobby.Together);
+                    LongEventHandler.QueueLongEvent(() =>
+                    {
+                        Current.ProgramState = ProgramState.Entry;
+                        Game.ClearCaches();
+                        Current.Game = new Game();
+                        Current.Game.InitData = new GameInitData();
+                        Current.Game.Scenario = ScenarioDefOf.Crashlanded.scenario.CopyForEditing();
+                        Find.Scenario.PreConfigure();
+                        Current.Game.storyteller = new Storyteller(StorytellerDefOf.Cassandra, DifficultyDefOf.Rough);
+                        Current.Game.World = RimWorld.Planet.WorldGenerator.GenerateWorld(0.05f, GenText.RandomSeedString(), RimWorld.Planet.OverallRainfall.Normal,
+                            RimWorld.Planet.OverallTemperature.Normal, RimWorld.Planet.OverallPopulation.Normal, RimWorld.Planet.LandmarkDensity.Normal);
+                        Find.GameInitData.ChooseRandomStartingTile();
+                        Find.GameInitData.mapSize = 150;
+                        Find.Scenario.PostIdeoChosen();
+                        Find.WindowStack.Add(new Page_ConfigureStartingPawns { nextAct = PageUtility.InitGameStart });
+                    }, "GeneratingMap", false, null);
+                    break;
                 case "earlybegin": EarlyColonists.mine = null; EarlyColonists.Begin(); break;
                 case "pagestatus":
                     var pg = Find.WindowStack.WindowOfType<Page_ConfigureStartingPawns>();
