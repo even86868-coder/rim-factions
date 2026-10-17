@@ -273,9 +273,11 @@
   <RF_SendVisitorsHomeDesc>These visitors go back to their own colony with their injuries and gear. When all have gone, both games return to solo.</RF_SendVisitorsHomeDesc>
 
   <!-- together / split -->
-  <RF_SplitOff>Leave to found own colony</RF_SplitOff>
-  <RF_SplitOffDesc>Your colonists leave this shared colony as a caravan. Your game becomes your own save on the same planet: settle wherever you like.</RF_SplitOffDesc>
-  <RF_SplitConfirm>Leave with your {0} colonists and found your own colony?</RF_SplitConfirm>
+  <RF_SplitOff>Found own colony with this caravan</RF_SplitOff>
+  <RF_SplitOffDesc>This caravan (only your own colonists) leaves the shared colony for good. Your game becomes your own save on the same planet: settle wherever you like.</RF_SplitOffDesc>
+  <RF_SplitConfirm>Leave the shared colony for good with these {0} colonists?\n\nYour game stops being part of the shared colony and becomes your own save with only this caravan. There is no coming back to the shared colony after this (you can still visit, trade and send gifts).</RF_SplitConfirm>
+  <RF_SplitConfirmTitle>Found your own colony?</RF_SplitConfirmTitle>
+  <RF_SplitConfirmYes>Yes, leave and found my own colony</RF_SplitConfirmYes>
   <RF_SplitDoneLabel>Your own colony</RF_SplitDoneLabel>
   <RF_SplitDoneText>You've left the shared colony. Your caravan is on the world map: pick a spot and settle. Your old friends are still linked: gifts and trips work as before.</RF_SplitDoneText>
 

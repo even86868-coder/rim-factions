@@ -148,19 +148,17 @@ namespace RimFactions
                     icon = RFTex.Trip,
                     action = () => SendHome(visit.tripId, Find.Selector.SelectedPawns.Where(x => comp.VisitOf(x) == visit).ToList())
                 };
-            var me = MpBridge.MyUsername;
-            if (comp.togetherOpen && me != null && comp.OwnerOf(p) == me && p.IsFreeColonist)
-                yield return new Command_Once
-                {
-                    defaultLabel = "RF_SplitOff".Translate(),
-                    defaultDesc = "RF_SplitOffDesc".Translate(),
-                    icon = RFTex.Trip,
-                    action = () =>
-                    {
-                        var mine = p.Map.mapPawns.FreeColonistsSpawned.Where(x => comp.OwnerOf(x) == me).ToList();
-                        Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("RF_SplitConfirm".Translate(mine.Count), () => Depart(mine, me)));
-                    }
-                };
+            // feature:SplitOff: only from a caravan out on the world map (CaravanSplitOff), never from colonists on the map
+        }
+
+        /// Synced: this caravan of mine leaves the shared colony to become my own game.
+        [SyncMethod]
+        public static void DepartCaravan(Caravan caravan, string owner)
+        {
+            var comp = Current.Game.GetComponent<RFGameComp>();
+            if (caravan == null || caravan.Destroyed || comp.departures.Any(d => d.owner == owner)) return;
+            if (!caravan.PawnsListForReading.Any(p => comp.OwnerOf(p) == owner)) return;
+            comp.departures.Add(new Departure { owner = owner, caravan = caravan });
         }
 
         [SyncMethod]
@@ -399,5 +397,35 @@ namespace RimFactions
 
         public static bool VisitorAway => visitor != null;
         public static string VisitorFriend => visitor?.friendId;
+    }
+}
+
+namespace RimFactions
+{
+    /// feature:SplitOff on a caravan: a caravan out on the world map made of my own colonists (no one else's) can found
+    /// my own colony; a clear warning asks first, so it can't be clicked by mistake.
+    [HarmonyLib.HarmonyPatch(typeof(RimWorld.Planet.Caravan), nameof(RimWorld.Planet.Caravan.GetGizmos))]
+    static class CaravanSplitOff
+    {
+        static System.Collections.Generic.IEnumerable<Gizmo> Postfix(System.Collections.Generic.IEnumerable<Gizmo> __result, RimWorld.Planet.Caravan __instance)
+        {
+            foreach (var g in __result) yield return g;
+            var comp = Current.Game?.GetComponent<RFGameComp>();
+            var me = MpBridge.MyUsername;
+            // the host keeps the shared colony; friends split off from it
+            if (comp == null || !comp.togetherOpen || me == null || MpBridge.Hosting || __instance.Faction != Faction.OfPlayer) yield break;
+            var people = __instance.PawnsListForReading.Where(p => p.RaceProps.Humanlike).ToList();
+            if (people.Count == 0 || people.Any(p => comp.OwnerOf(p) != me)) yield break;   // only my own colonists in it
+            var caravan = __instance;
+            yield return new Command_Action
+            {
+                defaultLabel = "RF_SplitOff".Translate(),
+                defaultDesc = "RF_SplitOffDesc".Translate(),
+                icon = RFTex.Trip,
+                action = () => Find.WindowStack.Add(new Dialog_MessageBox("RF_SplitConfirm".Translate(people.Count),
+                    "RF_SplitConfirmYes".Translate(), () => Live.DepartCaravan(caravan, me),
+                    "Cancel".Translate(), null, "RF_SplitConfirmTitle".Translate(), buttonADestructive: true))
+            };
+        }
     }
 }
