@@ -15,21 +15,46 @@ namespace RimFactions
     {
         /// Gives this player their kit, unless they had it already. Runs in every game at once (callers are synced or
         /// run before the session opens).
-        public static void Give(Map map, string owner)
+        public static void Give(Map map, string owner, string scenario = null)
         {
             var comp = Current.Game.GetComponent<RFGameComp>();
             if (map == null || owner == null || comp.kits.Contains(owner) || Find.Scenario == null) return;
             comp.kits.Add(owner);
-            var things = Make();
+            var things = Make(ScenarioFromText(scenario) ?? Find.Scenario);   // the player's own scenario (feature:OwnScenario)
             if (things.Count == 0) return;
             var near = map.mapPawns.FreeColonistsSpawned.FirstOrDefault(p => comp.OwnerOf(p) == owner)?.Position ?? DropCellFinder.TradeDropSpot(map);
             DropPodUtility.DropThingsNear(near, map, things, forbid: false);
         }
 
-        static List<Thing> Make()
+        /// A scenario as the text of a scenario file, to send between games.
+        public static string ScenarioToText(Scenario scen)
+        {
+            if (scen == null) return null;
+            try
+            {
+                var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RimFactions-out.rsc");
+                GameDataSaveLoader.SaveScenario(scen.CopyForEditing(), path);
+                return System.IO.File.ReadAllText(path);
+            }
+            catch (System.Exception e) { Log.Warning("[Rim Factions] couldn't write a scenario: " + e.Message); return null; }
+        }
+
+        public static Scenario ScenarioFromText(string text)
+        {
+            if (text.NullOrEmpty()) return null;
+            try
+            {
+                var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RimFactions-in.rsc");
+                System.IO.File.WriteAllText(path, text);
+                return GameDataSaveLoader.TryLoadScenario(path, ScenarioCategory.CustomLocal, out var scen) ? scen : null;
+            }
+            catch (System.Exception e) { Log.Warning("[Rim Factions] couldn't read a scenario: " + e.Message); return null; }
+        }
+
+        static List<Thing> Make(Scenario scenario)
         {
             var things = new List<Thing>();
-            foreach (var part in Find.Scenario.AllParts)
+            foreach (var part in scenario.AllParts)
             {
                 try
                 {

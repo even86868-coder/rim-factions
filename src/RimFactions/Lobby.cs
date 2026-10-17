@@ -53,7 +53,22 @@ namespace RimFactions
         public static void HostAtPawns() => SendState(true, Mode, Relation, true, "pawns",
             new XAttribute("scenario", Find.Scenario?.name ?? ""),
             new XAttribute("storyteller", Find.Storyteller?.def?.defName ?? ""),
-            new XAttribute("difficulty", Find.Storyteller?.difficultyDef?.defName ?? ""));
+            new XAttribute("difficulty", Find.Storyteller?.difficultyDef?.defName ?? ""),
+            new XAttribute("scenFile", ScenarioText() ?? ""));
+
+        /// The host's scenario as a scenario file, so friends make colonists in exactly the same one (custom ones too).
+        static string ScenarioText()
+        {
+            try
+            {
+                var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RimFactions-host-scenario.rsc");
+                GameDataSaveLoader.SaveScenario(Find.Scenario.CopyForEditing(), path);
+                return System.IO.File.ReadAllText(path);
+            }
+            catch (System.Exception e) { Log.Warning("[Rim Factions] couldn't share the scenario: " + e.Message); return null; }
+        }
+
+        public static string HostScenarioFile => (string)State?.Attribute("scenFile");
 
         public static string HostScenario => (string)State?.Attribute("scenario");
         public static string HostStoryteller => (string)State?.Attribute("storyteller");
@@ -63,12 +78,15 @@ namespace RimFactions
         public static readonly Dictionary<string, (string mpName, List<XElement> pawns)> friendColonists = new Dictionary<string, (string, List<XElement>)>();
         /// host: friends' colonists in the new game, and whose they are, until the together session tags them.
         public static readonly Dictionary<Pawn, string> pendingOwners = new Dictionary<Pawn, string>();
+        /// host: each friend's own scenario (by their Multiplayer name), for their starting kit.
+        public static readonly Dictionary<string, string> friendScenarios = new Dictionary<string, string>();
 
         static void OnFriendColonists(Msg m)
         {
             if (!IAmHost) return;
             var pawns = m.x.Element("pawns")?.Elements("pawn").Select(e => new XElement(e)).ToList() ?? new List<XElement>();
             friendColonists[m.From] = (m.Get("mp") ?? Roster.Get(m.From)?.player, pawns);
+            friendScenarios[m.Get("mp") ?? Roster.Get(m.From)?.player ?? m.From] = m.Get("scen");
         }
 
         /// Lobby members (not the host) and whether their colonists have arrived here.
@@ -100,7 +118,9 @@ namespace RimFactions
                 var comp = Current.Game.GetComponent<RFGameComp>();
                 foreach (var kv in pendingOwners) comp.SetOwner(kv.Key, kv.Value);
                 var home = Find.Maps.FirstOrDefault(m => m.IsPlayerHome);
-                foreach (var friend in pendingOwners.Values.Distinct()) StartingKit.Give(home, friend);   // feature:StartingKit
+                foreach (var friend in pendingOwners.Values.Distinct())
+                    StartingKit.Give(home, friend, friendScenarios.TryGetValue(friend, out var scen) ? scen : null);   // feature:StartingKit
+                friendScenarios.Clear();
                 pendingOwners.Clear();
                 friendColonists.Clear();
             }

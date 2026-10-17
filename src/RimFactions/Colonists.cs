@@ -50,7 +50,8 @@ namespace RimFactions
         public static void SendToHost()
         {
             if (mine == null || Roster.HubId == null || Link.Role != LinkRole.Client) return;
-            Link.Send(new Msg("MyColonists", Roster.HubId, new XElement("mp", MyMpName()), new XElement("pawns", mine.Select(XElement.Parse))));
+            Link.Send(new Msg("MyColonists", Roster.HubId, new XElement("mp", MyMpName()), new XElement("pawns", mine.Select(XElement.Parse)),
+                new XElement("scen", myScenario ?? "")));
             Lobby.SetReady(true);
         }
 
@@ -65,17 +66,31 @@ namespace RimFactions
         /// Straight to the colonist page: no scenario, storyteller, world or landing-site screens. Like RimWorld's own
         /// quick start, a small private setup is made in the background with the host's scenario and storyteller (they
         /// decide what kind of colonists you can make); only the colonists are kept, and they land in the host's world.
+        /// My scenario's file, sent with my colonists so my starting kit is my scenario's (feature:StartingKit).
+        public static string myScenario
+        {
+            get { try { return System.IO.File.Exists(ScenPath) ? System.IO.File.ReadAllText(ScenPath) : null; } catch { return null; } }
+            set { try { if (value == null) System.IO.File.Delete(ScenPath); else System.IO.File.WriteAllText(ScenPath, value); } catch { } }
+        }
+        static string ScenPath => System.IO.Path.Combine(GenFilePaths.SaveDataFolderPath, "RimFactions-my-scenario.rsc");
+
+        /// First I pick my own scenario; my colonists are made in it.
         public static void Begin()
         {
-            making = true;
             Find.WindowStack.WindowOfType<LobbyWindow>()?.Close(false);
+            if (!Find.WindowStack.IsOpen<ScenarioPickWindow>()) Find.WindowStack.Add(new ScenarioPickWindow());
+        }
+
+        public static void BeginWith(Scenario chosen)
+        {
+            making = true;
             LongEventHandler.QueueLongEvent(() =>
             {
                 Current.ProgramState = ProgramState.Entry;
                 Game.ClearCaches();
                 Current.Game = new Game();
                 Current.Game.InitData = new GameInitData();
-                Current.Game.Scenario = (HostScenarioDef() ?? ScenarioDefOf.Crashlanded.scenario).CopyForEditing();
+                Current.Game.Scenario = (chosen ?? HostScenarioDef() ?? ScenarioDefOf.Crashlanded.scenario).CopyForEditing();
                 Find.Scenario.PreConfigure();
                 var teller = DefDatabase<StorytellerDef>.GetNamedSilentFail(Lobby.HostStoryteller ?? "") ?? StorytellerDefOf.Cassandra;
                 var difficulty = DefDatabase<DifficultyDef>.GetNamedSilentFail(Lobby.HostDifficulty ?? "") ?? DifficultyDefOf.Rough;
@@ -101,8 +116,18 @@ namespace RimFactions
             Find.WindowStack.Add(new Dialog_MessageBox("RF_EarlyFailed".Translate(e.GetType().Name + ": " + e.Message)));
         }
 
-        static Scenario HostScenarioDef()
+        public static Scenario HostScenarioDef()
         {
+            // exactly the host's scenario, from the file they sent
+            var text = Lobby.HostScenarioFile;
+            if (!text.NullOrEmpty())
+                try
+                {
+                    var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RimFactions-host-scenario-in.rsc");
+                    System.IO.File.WriteAllText(path, text);
+                    if (GameDataSaveLoader.TryLoadScenario(path, ScenarioCategory.CustomLocal, out var scen) && scen != null) return scen;
+                }
+                catch (System.Exception e) { Log.Warning("[Rim Factions] host's scenario unreadable, matching by name: " + e.Message); }
             var name = Lobby.HostScenario;
             if (name.NullOrEmpty()) return null;
             return ScenarioLister.AllScenarios().FirstOrDefault(s => s.name == name);
@@ -110,7 +135,7 @@ namespace RimFactions
 
         /// Synced: my colonists from my creation screen join the colony, in every game identically.
         [SyncMethod]
-        public static void Arrive(string owner, string pawnsXml)
+        public static void Arrive(string owner, string pawnsXml, string scenario)
         {
             var comp = Current.Game.GetComponent<RFGameComp>();
             if (!comp.togetherOpen || comp.owners.Contains(owner)) return;
@@ -124,7 +149,7 @@ namespace RimFactions
                 pawns.Add(p);
             }
             if (pawns.Count > 0) DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(map), map, pawns, forbid: false);
-            StartingKit.Give(map, owner);
+            StartingKit.Give(map, owner, scenario);
         }
 
         /// Called once I'm in the session: send my early colonists, if I made any. True when it did.
@@ -146,8 +171,10 @@ namespace RimFactions
             if (comp.owners.Contains(me)) { mine = null; return true; }
             if (mine == null || mine.Count == 0) return false;
             var xml = new XElement("pawns", mine.Select(XElement.Parse)).ToString(SaveOptions.DisableFormatting);
+            var scen = myScenario;
             mine = null;   // used up (file removed)
-            Arrive(me, xml);
+            myScenario = null;
+            Arrive(me, xml, scen ?? "");
             NewsFeed.Send("JoinedTogether", new XElement("player", me), new XElement("count", RFSettings.TogetherStartPawns));
             return true;
         }
@@ -161,8 +188,8 @@ namespace RimFactions
         {
             if (Lobby.HostMakingTogether) Lobby.HostAtPawns();   // friends: make yours now (feature:LandTogether)
             if (!EarlyColonists.making || Find.GameInitData == null) return;
-            int n = Mathf.Max(1, RFSettings.TogetherStartPawns);
-            while (Find.GameInitData.startingAndOptionalPawns.Count < n) StartingPawnUtility.AddNewPawn();
+            // the lobby's limit, and never more than my scenario starts with
+            int n = Mathf.Clamp(RFSettings.TogetherStartPawns, 1, Mathf.Max(1, Find.GameInitData.startingPawnCount));
             Find.GameInitData.startingPawnCount = n;
             Messages.Message("RF_EarlyHint".Translate(n), MessageTypeDefOf.NeutralEvent, false);
         }
@@ -192,6 +219,7 @@ namespace RimFactions
             var init = Find.GameInitData;
             EarlyColonists.mine = init.startingAndOptionalPawns.Take(init.startingPawnCount)
                 .Select(p => PawnData.Capture(p).ToString(SaveOptions.DisableFormatting)).ToList();
+            EarlyColonists.myScenario = StartingKit.ScenarioToText(Find.Scenario);
             EarlyColonists.SendToHost();
             Messages.Message("RF_EarlyReady".Translate(EarlyColonists.mine.Count), MessageTypeDefOf.PositiveEvent, false);
             GenScene.GoToMainMenu();
@@ -323,5 +351,60 @@ namespace RimFactions
             __instance.GetType() == typeof(MainTabWindow_Work) && OwnColonists.Active
                 ? __result.Where(OwnColonists.Mine)
                 : __result.Where(p => !OwnColonists.Blocked(p));
+    }
+}
+
+namespace RimFactions
+{
+    /// feature:OwnScenario — a friend picks their own scenario for their colonists (the host's is preselected). They can
+    /// make as many colonists as the lobby allows, but never more than that scenario starts with.
+    public class ScenarioPickWindow : Window
+    {
+        Scenario selected;
+        Vector2 scroll;
+        readonly List<Scenario> all;
+
+        public override Vector2 InitialSize => new Vector2(860f, 640f);
+
+        public ScenarioPickWindow()
+        {
+            doCloseX = true;
+            absorbInputAroundWindow = true;
+            all = ScenarioLister.AllScenarios().Where(s => s.showInUI).ToList();
+            var host = EarlyColonists.HostScenarioDef();
+            selected = all.FirstOrDefault(s => host != null && s.name == host.name) ?? host ?? all.FirstOrDefault();
+            if (host != null && !all.Contains(host)) all.Insert(0, host);
+        }
+
+        public override void DoWindowContents(Rect inRect)
+        {
+            Text.Font = GameFont.Medium;
+            Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, 36f), "RF_PickScenarioTitle".Translate());
+            Text.Font = GameFont.Small;
+            Widgets.Label(new Rect(inRect.x, inRect.y + 36f, inRect.width, 44f), "RF_PickScenarioHint".Translate(RFSettings.TogetherStartPawns));
+
+            var list = new Rect(inRect.x, inRect.y + 86f, 300f, inRect.height - 136f);
+            var view = new Rect(0, 0, list.width - 16f, all.Count * 32f);
+            Widgets.BeginScrollView(list, ref scroll, view);
+            for (int i = 0; i < all.Count; i++)
+            {
+                var r = new Rect(0, i * 32f, view.width, 30f);
+                if (all[i] == selected) Widgets.DrawHighlightSelected(r); else Widgets.DrawHighlightIfMouseover(r);
+                Widgets.Label(r.ContractedBy(4f), all[i].name);
+                if (Widgets.ButtonInvisible(r)) selected = all[i];
+            }
+            Widgets.EndScrollView();
+
+            var info = new Rect(list.xMax + 12f, list.y, inRect.width - list.width - 12f, list.height);
+            if (selected != null) Widgets.LabelScrollable(info, selected.GetFullInformationText(), ref infoScroll);
+
+            if (Widgets.ButtonText(new Rect(inRect.xMax - 260f, inRect.yMax - 40f, 260f, 38f), "RF_PickScenarioGo".Translate()) && selected != null)
+            {
+                Close();
+                EarlyColonists.BeginWith(selected);
+            }
+        }
+
+        Vector2 infoScroll;
     }
 }
