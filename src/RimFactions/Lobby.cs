@@ -181,9 +181,10 @@ namespace RimFactions
                 if (!IAmIn && !Find.WindowStack.IsOpen<LobbyWindow>() && !Find.WindowStack.IsOpen<JoinWelcomeWindow>()) Lobby.ShowWindow();
                 return;
             }
-            if (Stage == "pawns" && EarlyColonists.mine == null && !EarlyColonists.making && IAmIn && !Find.WindowStack.IsOpen<LobbyWindow>()
+            // the host is on the colonist page: mine opens by itself (feature:LandTogether)
+            if (Mode == Together && Stage == "pawns" && EarlyColonists.mine == null && !EarlyColonists.making && !EarlyColonists.failed && IAmIn
                 && !Find.WindowStack.Windows.Any(w => w is Page))
-                ShowWindow();
+                EarlyColonists.Begin();
             if (acted || !(IAmIn || Find.WindowStack.IsOpen<LobbyWindow>())) return;
             // Already connecting (e.g. Multiplayer reconnects by itself after restarting with the host's settings).
             if (Live.InSession) { acted = true; return; }
@@ -320,9 +321,10 @@ namespace RimFactions
                         GUI.color = new Color(0.5f, 0.9f, 0.5f);
                         l.Label("RF_EarlyHave".Translate(EarlyColonists.mine.Count));
                         GUI.color = Color.white;
-                        if (l.ButtonText("RF_EarlyRemake".Translate())) EarlyColonists.Begin();
+                        if (Lobby.Stage == "pawns" && l.ButtonText("RF_EarlyRemake".Translate())) { EarlyColonists.failed = false; EarlyColonists.Begin(); }
                     }
-                    else if (!Live.InSession && l.ButtonText("RF_EarlyMake".Translate())) EarlyColonists.Begin();
+                    else if (Lobby.Stage == "pawns" && !Live.InSession && l.ButtonText("RF_EarlyMake".Translate())) { EarlyColonists.failed = false; EarlyColonists.Begin(); }
+                    else if (Lobby.Stage != "pawns") l.Label("RF_EarlyWaitHost".Translate(Roster.Get(Roster.HubId)?.player ?? "?"));
                 }
             }
             l.Gap(6);

@@ -19,6 +19,8 @@ namespace RimFactions
     {
         /// I'm going through the new-game screens only to make my colonists.
         public static bool making;
+        /// The last try failed: don't reopen by itself (the lobby's button tries again).
+        public static bool failed;
         /// My finished colonists, waiting for the together session. Kept on disk too, so they survive the restart
         /// that takes the host's mod settings.
         public static List<string> mine
@@ -83,8 +85,20 @@ namespace RimFactions
                 Find.GameInitData.ChooseRandomStartingTile();
                 Find.GameInitData.mapSize = 250;
                 Find.Scenario.PostIdeoChosen();
-            }, "RF_EarlyPreparing", false, e => { making = false; Log.Error("[Rim Factions] preparing colonist creation failed: " + e); });
-            LongEventHandler.ExecuteWhenFinished(() => { if (making) Find.WindowStack.Add(new Page_ConfigureStartingPawns()); });
+                // the page opens as the setup's last step (a "when finished" action would run before the setup)
+                if (Find.GameInitData == null || Find.GameInitData.startingAndOptionalPawns.Count == 0)
+                    throw new System.Exception("no starting colonists were generated");
+                Find.WindowStack.Add(new Page_ConfigureStartingPawns());
+            }, "RF_EarlyPreparing", false, Fail);
+        }
+
+        /// Shows why colonist creation couldn't open, and logs it in full.
+        static void Fail(System.Exception e)
+        {
+            making = false;
+            failed = true;
+            Log.Error("[Rim Factions] preparing colonist creation failed: " + e);
+            Find.WindowStack.Add(new Dialog_MessageBox("RF_EarlyFailed".Translate(e.GetType().Name + ": " + e.Message)));
         }
 
         static Scenario HostScenarioDef()

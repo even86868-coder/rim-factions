@@ -142,7 +142,9 @@
   <RF_OwnerLine>Player: {0}</RF_OwnerLine>
   <RF_ClaimSelected>Make the {0} selected unowned colonists mine</RF_ClaimSelected>
   <RF_GiveSelected>Give the {0} selected colonists to {1}</RF_GiveSelected>
-  <RF_EarlyMake>Make my colonists now (while the host sets up)</RF_EarlyMake>
+  <RF_EarlyWaitHost>Your colonist maker opens by itself as soon as {0} reaches their colonist page.</RF_EarlyWaitHost>
+  <RF_EarlyFailed>Rim Factions couldn't open your colonist maker:\n\n{0}\n\nPlease send this to whoever helps you with the mod (your Player.log has the details). You can try again from the lobby.</RF_EarlyFailed>
+  <RF_EarlyMake>Make my colonists</RF_EarlyMake>
   <RF_EarlyRemake>Remake my colonists</RF_EarlyRemake>
   <RF_EarlyHave>Your {0} colonists are ready. They drop into the colony when you join.</RF_EarlyHave>
   <RF_EarlyHint>Make your {0} colonists for the shared colony. Press Start when you're happy: that's your ready.</RF_EarlyHint>
