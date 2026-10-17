@@ -156,6 +156,7 @@
   <RF_EarlyHint>Make your {0} colonists for the shared colony. Press Start when you're happy: that's your ready.</RF_EarlyHint>
   <RF_EarlyReady>You're ready: your {0} colonists went to the host and land with theirs. You'll join as soon as the colony is up.</RF_EarlyReady>
   <RF_NotYourColonist>{0} is {1}'s colonist: you can look, but only {1} gives orders.</RF_NotYourColonist>
+  <RF_KeptHostConfigs>Your mod settings now match the host's, so next time you join, the game won't need to restart. (Your old settings are backed up in the Config folder.)</RF_KeptHostConfigs>
   <RF_ReloadOpen>Load a save for everyone...</RF_ReloadOpen>
   <RF_ReloadTitle>Load a save for everyone</RF_ReloadTitle>
   <RF_ReloadHint>Pick a save. Your friends leave this game, you load the save and host it, and they rejoin by themselves.</RF_ReloadHint>
@@ -180,6 +181,11 @@
   <RF_SetNameTags>Show player names over their pawns</RF_SetNameTags>
   <RF_ApplyingHostConfigs>Your mod settings differ from the host's. Restarting with theirs (just for this session) and reconnecting...</RF_ApplyingHostConfigs>
   <RF_ModSyncButton>Use {0}'s mod list</RF_ModSyncButton>
+  <RF_ModSyncPrompt>Your mods don't match {0}'s ({1} different). Joining {0} would make Multiplayer restart your game with their mods every time.
+
+Switch to {0}'s mod list now? RimWorld restarts once, and after that joining is quick. Your own list is saved and can be restored.</RF_ModSyncPrompt>
+  <RF_NotNow>Not now</RF_NotNow>
+  <RF_ModSyncOrderOnly>same mods, different order</RF_ModSyncOrderOnly>
   <RF_ModSyncTitle>Matching {0}'s mods</RF_ModSyncTitle>
   <RF_ModSyncSame>You already have the same mods in the same order.</RF_ModSyncSame>
   <RF_ModSyncUnavailable>Can't be downloaded, so left out: {0}</RF_ModSyncUnavailable>

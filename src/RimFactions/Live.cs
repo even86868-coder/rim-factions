@@ -305,6 +305,7 @@ namespace RimFactions
             if (InSession)
             {
                 if (!wasInSession) { sessionSince = Time.realtimeSinceStartup; ownersLogged = false; }
+                if (Time.realtimeSinceStartup - sessionSince > 15f) Compat.HostConfigs.AdoptIfApplied();
                 if (!ownersLogged && Time.realtimeSinceStartup - sessionSince > 20f) { ownersLogged = true; Ownership.LogOwners(); }
                 if (MP.InInterface && Time.realtimeSinceStartup - sessionSince > 6f && Time.frameCount % 300 == 0) Ownership.PushMyColor();
                 wasInSession = true;

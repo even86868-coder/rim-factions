@@ -19,6 +19,8 @@ namespace RimFactions
     {
         /// I'm going through the new-game screens only to make my colonists.
         public static bool making;
+        /// How many colonists I may bring (the lobby's limit within my scenario), set on the colonist page.
+        public static int limit;
         /// The last try failed: don't reopen by itself (the lobby's button tries again).
         public static bool failed;
         /// My finished colonists, waiting for the together session. Kept on disk too, so they survive the restart
@@ -197,6 +199,7 @@ namespace RimFactions
             int need = Mathf.Max(1, Req(init.startingPawnsRequired) + Req(init.startingXenotypesRequired)) + Req(init.startingMutantsRequired);
             int n = Mathf.Clamp(Mathf.Max(Mathf.Min(RFSettings.TogetherStartPawns, scenarioCount), need), 1, scenarioCount);
             init.startingPawnCount = n;
+            EarlyColonists.limit = n;
             Messages.Message("RF_EarlyHint".Translate(n), MessageTypeDefOf.NeutralEvent, false);
         }
     }
@@ -213,6 +216,7 @@ namespace RimFactions
             HostPawnPage.Init(h);
             var pawns = AccessTools.PropertyGetter(typeof(MainTabWindow_PawnTable), "Pawns");
             if (pawns != null) h.Patch(pawns, postfix: new HarmonyMethod(typeof(OwnColonistsTables), "Postfix"));
+            PrepareCarefullyStart.Init(h);
         }
 
         static bool confirmed;
@@ -221,30 +225,58 @@ namespace RimFactions
         {
             if (Lobby.HostMakingTogether) return HostStart(__instance);
             if (!EarlyColonists.making) return true;
+            CaptureMine();
+            return false;
+        }
+
+        /// A friend's colonists are made: keep them (with their possessions and my scenario's kit) for the host.
+        public static void CaptureMine()
+        {
             EarlyColonists.making = false;
             var init = Find.GameInitData;
-            EarlyColonists.mine = init.startingAndOptionalPawns.Take(init.startingPawnCount)
-                .Select(p => PawnData.Capture(p).ToString(SaveOptions.DisableFormatting)).ToList();
+            int n = EarlyColonists.limit > 0 ? Mathf.Min(init.startingPawnCount, EarlyColonists.limit) : init.startingPawnCount;
+            var pawns = init.startingAndOptionalPawns.Take(n).ToList();
+            // the things each colonist brings (chosen on the colonist page or in Prepare Carefully) travel in their pockets
+            foreach (var p in pawns)
+                if (init.startingPossessions != null && init.startingPossessions.TryGetValue(p, out var stuff) && p.inventory != null)
+                    foreach (var c in stuff)
+                        try
+                        {
+                            var thing = ThingMaker.MakeThing(c.ThingDef, c.ThingDef.MadeFromStuff ? GenStuff.DefaultStuffFor(c.ThingDef) : null);
+                            thing.stackCount = Mathf.Max(1, c.Count);
+                            p.inventory.innerContainer.TryAdd(thing);
+                        }
+                        catch (System.Exception e) { Log.Warning($"[Rim Factions] {p.LabelShort}'s {c.ThingDef?.defName}: {e.Message}"); }
+            EarlyColonists.mine = pawns.Select(p => PawnData.Capture(p).ToString(SaveOptions.DisableFormatting)).ToList();
             EarlyColonists.myScenario = StartingKit.ScenarioToText(Find.Scenario);
             EarlyColonists.SendToHost();
             Messages.Message("RF_EarlyReady".Translate(EarlyColonists.mine.Count), MessageTypeDefOf.PositiveEvent, false);
             GenScene.GoToMainMenu();
+        }
+
+        /// Host: friends who haven't readied yet. Asks once; true means go ahead.
+        public static bool ReadyOrConfirmed(System.Action retry)
+        {
+            var waiting = Lobby.MemberColonists().Where(t => !t.ready).Select(t => t.f.player).ToList();
+            if (waiting.Count == 0 || confirmed) return true;
+            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("RF_PawnPageStartWithout".Translate(string.Join(", ", waiting)), () =>
+            {
+                confirmed = true;
+                retry();
+            }));
             return false;
         }
 
         /// feature:LandTogether: friends' colonists join the starting colonists, so everyone lands at once.
         static bool HostStart(Page_ConfigureStartingPawns page)
         {
-            var waiting = Lobby.MemberColonists().Where(t => !t.ready).Select(t => t.f.player).ToList();
-            if (waiting.Count > 0 && !confirmed)
-            {
-                Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("RF_PawnPageStartWithout".Translate(string.Join(", ", waiting)), () =>
-                {
-                    confirmed = true;
-                    Traverse.Create(page).Method("DoNext").GetValue();
-                }));
-                return false;
-            }
+            if (!ReadyOrConfirmed(() => Traverse.Create(page).Method("DoNext").GetValue())) return false;
+            AddFriends();
+            return true;
+        }
+
+        public static void AddFriends()
+        {
             confirmed = false;
             var init = Find.GameInitData;
             // my own starting colonists are mine from the start (they're still in their drop pods when the session opens)
@@ -265,7 +297,6 @@ namespace RimFactions
                     }
                     catch (System.Exception e) { Log.Warning("[Rim Factions] a friend's colonist couldn't be made: " + e.Message); }
                 }
-            return true;
         }
     }
 
@@ -457,6 +488,50 @@ namespace RimFactions
             if (!Rules.Local.nameTags || pawn == null || !Live.InSession) return;
             var owner = Current.Game?.GetComponent<RFGameComp>()?.OwnerOf(pawn);
             if (owner != null) __result = Lobby.ColorOf(owner);
+        }
+    }
+}
+
+namespace RimFactions
+{
+    /// feature:PrepareCarefullyTogether — Prepare Carefully starts the game itself instead of pressing the colonist
+    /// page's Start, so Rim Factions follows it there: a friend's prepared colonists (with their gear, possessions,
+    /// pets and items) go to the host, and the host's prepared colonists land with the friends'.
+    static class PrepareCarefullyStart
+    {
+        static System.Type controller;
+
+        public static void Init(Harmony h)
+        {
+            controller = AccessTools.TypeByName("EdB.PrepareCarefully.ControllerPage");
+            if (controller == null) return;
+            var start = AccessTools.Method(controller, "StartGame");
+            var prepare = AccessTools.Method(controller, "PreparePawns");
+            if (start == null || prepare == null) { Log.Warning("[Rim Factions] Prepare Carefully changed; starting together uses the normal colonist page"); return; }
+            h.Patch(start, prefix: new HarmonyMethod(typeof(PrepareCarefullyStart), nameof(StartPrefix)));
+            h.Patch(prepare, postfix: new HarmonyMethod(typeof(PrepareCarefullyStart), nameof(PreparedPostfix)));
+            Log.Message("[Rim Factions] Prepare Carefully: starting together supported");
+        }
+
+        static bool StartPrefix(object __instance)
+        {
+            if (Lobby.HostMakingTogether)
+                return EarlyColonistsDone.ReadyOrConfirmed(() => Traverse.Create(__instance).Method("StartGame").GetValue());
+            if (!EarlyColonists.making) return true;
+            // a friend: apply what was prepared to the colonists and scenario, then send them instead of starting
+            var t = Traverse.Create(__instance);
+            t.Method("PreparePawns").GetValue();
+            t.Method("PrepareRelationships").GetValue();
+            t.Method("PrepareEquipment").GetValue();
+            foreach (var w in Find.WindowStack.Windows.Where(w => w.GetType().Namespace?.StartsWith("EdB.PrepareCarefully") == true).ToList()) w.Close(false);
+            EarlyColonistsDone.CaptureMine();
+            return false;
+        }
+
+        /// Host: Prepare Carefully just rebuilt the starting colonists from its own list; friends' colonists join now.
+        static void PreparedPostfix()
+        {
+            if (Lobby.HostMakingTogether) EarlyColonistsDone.AddFriends();
         }
     }
 }

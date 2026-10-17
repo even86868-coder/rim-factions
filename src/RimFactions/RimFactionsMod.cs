@@ -98,7 +98,7 @@ namespace RimFactions
         void Awake() => DontDestroyOnLoad(gameObject);
         void Update()
         {
-            try { Compat.LiveSettings.Update(); Live.Update(); ReloadSave.Update(); Lobby.Update(); Starters.Update(); JoinWelcome.Tick(); Trade.Tick(); }
+            try { Compat.LiveSettings.Update(); Live.Update(); ReloadSave.Update(); ModSync.MenuCheck(); Lobby.Update(); Starters.Update(); JoinWelcome.Tick(); Trade.Tick(); }
             catch (Exception e) { Log.ErrorOnce("[Rim Factions] " + e, 0x52464631); }
         }
     }

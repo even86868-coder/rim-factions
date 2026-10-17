@@ -74,6 +74,25 @@ namespace RimFactions
             ModsConfig.RestartFromChangedMods();
         }
 
+        static bool menuAsked, menuRequested;
+
+        /// feature:ModSyncAtStart — at the main menu, once per launch: if my mods don't match the host's, offer to
+        /// switch now. Then the one restart happens at the start, instead of Multiplayer restarting the game on every join.
+        public static void MenuCheck()
+        {
+            if (menuAsked || Current.ProgramState != ProgramState.Entry || LongEventHandler.AnyEventNowOrWaiting || Find.WindowStack == null) return;
+            if (!Net.Link.Connected || Net.Link.Role != Net.LinkRole.Client || !(Roster.Get(Roster.HubId) is Friend host)) return;
+            if (!menuRequested) { menuRequested = true; ModCompat.Request(host.id); return; }
+            var plan = Make(host);
+            if (plan == null) return;
+            menuAsked = true;
+            if (plan.same) return;
+            var mine = ModsConfig.ActiveModsInLoadOrder.Select(m => m.PackageIdPlayerFacing.ToLowerInvariant()).ToList();
+            int differ = plan.order.Except(mine).Count() + mine.Except(plan.order).Count();
+            Find.WindowStack.Add(new Dialog_MessageBox("RF_ModSyncPrompt".Translate(host.player, differ == 0 ? "RF_ModSyncOrderOnly".Translate().ToString() : differ.ToString()),
+                "RF_ModSyncButton".Translate(host.player), () => Start(host), "RF_NotNow".Translate()));
+        }
+
         public static void ConfirmRestore() =>
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("RF_ModSyncRestoreConfirm".Translate(), Restore));
 

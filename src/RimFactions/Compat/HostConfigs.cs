@@ -8,8 +8,8 @@ namespace RimFactions.Compat
     /// system:AutoHostConfigs — joining a live game whose mod settings differ from yours used to offer "Connect
     /// anyway", which desyncs within seconds (different settings, different game). When the mod list and files
     /// already match and only settings differ, Rim Factions takes Multiplayer's own "Fix and restart" path with the
-    /// host's settings: the game restarts once and reconnects by itself. The host's settings last until your next
-    /// normal start; none of your files are changed.
+    /// host's settings: the game restarts once and reconnects by itself. Once in, the host's settings become yours
+    /// (feature:KeepHostConfigs, old files backed up), so later joins don't restart again.
     public static class HostConfigs
     {
         public static void Init()
@@ -49,9 +49,78 @@ namespace RimFactions.Compat
 
             // Rim Factions' own settings are personal (your color, your cloud folder) or reach everyone through the
             // planet's rules anyway, so Multiplayer must neither compare them nor hand the host's to a joiner.
+            // Settings that only change how your own screen looks or sounds don't need to match either: a difference
+            // there used to cost a full restart on joining.
             var ignored = AccessTools.Field(AccessTools.TypeByName("Multiplayer.Client.Util.SyncConfigs"), "ignoredConfigsModIds");
-            if (ignored?.GetValue(null) is string[] ids && !ids.Contains("melty.rimfactions"))
-                ignored.SetValue(null, ids.Append("melty.rimfactions").ToArray());
+            if (ignored?.GetValue(null) is string[] ids)
+                ignored.SetValue(null, ids.Concat(LooksOnly).Distinct().ToArray());
+        }
+
+        static readonly string[] LooksOnly =
+        {
+            "melty.rimfactions", "mlie.showmeyourhands", "caesarv6.damageindicators", "neronix17.ui.faunapedia", "leo.cleancommandbar",
+            "automatic.bionicicons", "peppsen.pmusic", "ih.clean.textures", "creeper.betterinfocard", "andromeda.nicehealthtab",
+            "arandomkiwi.rimthemes", "brrainz.cameraplus", "jaxe.rimhud", "telardo.dragselect", "memegoddess.showmeyourhands",
+            "m00nl1ght.mappreview", "ilyvion.usethisinstead", "dubwise.dubsmintmenus", "dubwise.dubsmintminimap", "fluffy.modmanager",
+        };
+
+        // ---- feature:KeepHostConfigs ----
+
+        static bool adopted;
+
+        /// Joined with the host's settings (after Multiplayer's settings restart): make them my own settings too, so the
+        /// next join already matches and the game doesn't have to restart again. My old files are backed up first.
+        public static void AdoptIfApplied()
+        {
+            if (adopted || !Live.InSession || MpBridge.Hosting) return;
+            adopted = true;
+            try
+            {
+                var sync = AccessTools.TypeByName("Multiplayer.Client.Util.SyncConfigs");
+                if (!Traverse.Create(sync).Property("Applicable").GetValue<bool>()) return;
+                var temp = AccessTools.Field(sync, "TempConfigsPath")?.GetValue(null) as string;
+                if (temp == null || !System.IO.Directory.Exists(temp)) return;
+                var config = GenFilePaths.ConfigFolderPath;
+                var backup = System.IO.Path.Combine(config, "RimFactions-backup", DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+                int changed = 0;
+                void Backup(string file)
+                {
+                    var to = System.IO.Path.Combine(backup, file.Substring(config.Length).TrimStart(System.IO.Path.DirectorySeparatorChar, '/'));
+                    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(to));
+                    System.IO.File.Copy(file, to, true);
+                }
+
+                // the host's files become mine
+                var hostFiles = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var src in System.IO.Directory.GetFiles(temp, "*", System.IO.SearchOption.AllDirectories))
+                {
+                    var rel = src.Substring(temp.Length).TrimStart(System.IO.Path.DirectorySeparatorChar, '/');
+                    hostFiles.Add(rel);
+                    var dst = System.IO.Path.Combine(config, rel);
+                    if (System.IO.File.Exists(dst) && System.IO.File.ReadAllText(dst) == System.IO.File.ReadAllText(src)) continue;
+                    if (System.IO.File.Exists(dst)) Backup(dst);
+                    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(dst));
+                    System.IO.File.Copy(src, dst, true);
+                    changed++;
+                }
+
+                // settings files the host doesn't have (the host uses that mod's defaults) step aside, for the mods
+                // Multiplayer compares
+                var skip = new System.Collections.Generic.HashSet<string>(((string[])AccessTools.Field(sync, "ignoredConfigsModIds").GetValue(null)), StringComparer.OrdinalIgnoreCase);
+                var compared = LoadedModManager.RunningModsListForReading.Where(m => !skip.Contains(m.PackageIdPlayerFacing)).Select(m => m.FolderName).ToList();
+                foreach (var file in System.IO.Directory.GetFiles(config, "Mod_*.xml"))
+                {
+                    var name = System.IO.Path.GetFileName(file);
+                    if (hostFiles.Contains(name) || !compared.Any(f => name.StartsWith("Mod_" + f + "_", StringComparison.OrdinalIgnoreCase))) continue;
+                    Backup(file);
+                    System.IO.File.Delete(file);
+                    changed++;
+                }
+                if (changed == 0) return;
+                Log.Message($"[Rim Factions] kept the host's mod settings as mine ({changed} files; old ones in {backup})");
+                Messages.Message("RF_KeptHostConfigs".Translate(), RimWorld.MessageTypeDefOf.PositiveEvent, false);
+            }
+            catch (Exception e) { Log.Warning("[Rim Factions] couldn't keep the host's mod settings: " + e.Message); }
         }
 
         /// hook:DropGhosts — a friend whose game restarted (e.g. to take the host's settings) leaves a "ghost" of

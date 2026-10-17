@@ -91,6 +91,7 @@ namespace RimFactions.Compat
                     Log.Warning($"[Rim Factions] live compatibility for {attr.packageId} failed: {e}");
                 }
             }
+            try { AutoSync.Init(); } catch (Exception e) { Log.Warning("[Rim Factions] auto-sync failed: " + e.Message); }
             if (results.Count > 0) Log.Message("[Rim Factions] live compatibility: " + string.Join(", ", results.Select(kv => $"{kv.Key}={kv.Value}")));
         }
 
