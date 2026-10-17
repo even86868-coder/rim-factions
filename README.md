@@ -50,3 +50,8 @@ RimWorld 1.6, Steam running. Up to 4 players per planet.
 - `Mods/Multiplayer`, `Mods/MultiplayerCompatibility`, `Mods/Prepatcher` – bundled, unchanged, MIT (see CREDITS.md).
 - `Launcher/RimFactionsLauncher.exe` – adds these to your mod list in the right order (your
   ModsConfig.xml is backed up once as ModsConfig.before-RimFactions.xml) and starts RimWorld.
+
+## Testing builds (before Melty's review)
+Download [RimFactionsUpdater.exe](https://github.com/even86868-coder/rim-factions/raw/main/release/RimFactionsUpdater.exe) and run it:
+**Install / Update** puts the newest build from this repository into RimWorld's Mods folder, **Start RimWorld** starts the game.
+Everyone playing together should update before a session so all games run the same build.

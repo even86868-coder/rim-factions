@@ -16,7 +16,7 @@ using Microsoft.Win32;
 static class Program
 {
     /// owner/name of the GitHub repository. A repo.txt next to the exe overrides it.
-    const string DefaultRepo = "OWNER/rim-factions";
+    const string DefaultRepo = "even86868-coder/rim-factions";
     static readonly string[] BundledMods = { "RimFactions", "Multiplayer", "MultiplayerCompatibility", "Prepatcher" };
     static readonly string StatePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RimFactions", "updater-rimworld-path.txt");
 
