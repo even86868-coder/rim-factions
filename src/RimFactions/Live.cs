@@ -43,6 +43,7 @@ namespace RimFactions
         // together
         static bool claimed;
         public static string splitPending;
+        static bool ownersLogged;
 
         public static void Init()
         {
@@ -195,6 +196,7 @@ namespace RimFactions
             foreach (var p in PawnsFinder.AllMaps_FreeColonistsSpawned.Where(p => p.Faction == Faction.OfPlayer && comp.OwnerOf(p) == null))
                 comp.SetOwner(p, me);
             comp.togetherOpen = true;
+            if (!comp.kits.Contains(me)) comp.kits.Add(me);   // feature:StartingKit: the host had the scenario's
             togetherAnnounce = true;
             if (!MpBridge.Host(Find.World.info.name + " (Rim Factions)"))
                 Messages.Message("RF_HostFailed".Translate(), MessageTypeDefOf.RejectInput, false);
@@ -288,7 +290,9 @@ namespace RimFactions
 
             if (InSession)
             {
-                if (!wasInSession) sessionSince = Time.realtimeSinceStartup;
+                if (!wasInSession) { sessionSince = Time.realtimeSinceStartup; ownersLogged = false; }
+                if (!ownersLogged && Time.realtimeSinceStartup - sessionSince > 20f) { ownersLogged = true; Ownership.LogOwners(); }
+                if (MP.InInterface && Time.realtimeSinceStartup - sessionSince > 6f && Time.frameCount % 300 == 0) Ownership.PushMyColor();
                 wasInSession = true;
                 hadSession = true;
                 var me = MpBridge.MyUsername;

@@ -50,6 +50,16 @@
     </stockGenerators>
   </TraderKindDef>
 
+  <!-- feature:SharedWork: jobs for colonists nobody owns, next to the Work tab (only while colonists are personal) -->
+  <MainButtonDef>
+    <defName>RF_SharedWork</defName>
+    <label>shared work</label>
+    <description>Set jobs for the colonists nobody owns. Your own colonists are in the Work tab.</description>
+    <tabWindowClass>RimFactions.MainTabWindow_SharedWork</tabWindowClass>
+    <workerClass>RimFactions.MainButtonWorker_SharedWork</workerClass>
+    <order>21</order>
+  </MainButtonDef>
+
   <MainButtonDef>
     <defName>RF_MainButton</defName>
     <label>rim factions</label>

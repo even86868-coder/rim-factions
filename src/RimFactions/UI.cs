@@ -104,6 +104,7 @@ namespace RimFactions
                         Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("RF_EndSessionConfirm".Translate(), () => { Close(); MpBridge.ConvertToSingleplayer(); }));
                 }
             }
+            Ownership.Buttons(l);   // feature:OwnColonists
             if (Live.VisitorAway) l.Label("RF_VisitorAway".Translate(Roster.NameOf(Live.VisitorFriend)));
 
             l.GapLine();

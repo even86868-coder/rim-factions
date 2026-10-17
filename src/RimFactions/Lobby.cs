@@ -99,6 +99,8 @@ namespace RimFactions
                 // friends' colonists that landed with mine are theirs (feature:LandTogether)
                 var comp = Current.Game.GetComponent<RFGameComp>();
                 foreach (var kv in pendingOwners) comp.SetOwner(kv.Key, kv.Value);
+                var home = Find.Maps.FirstOrDefault(m => m.IsPlayerHome);
+                foreach (var friend in pendingOwners.Values.Distinct()) StartingKit.Give(home, friend);   // feature:StartingKit
                 pendingOwners.Clear();
                 friendColonists.Clear();
             }
@@ -237,6 +239,9 @@ namespace RimFactions
         public static Color ColorOf(string name)
         {
             if (name == null) return Color.white;
+            // a shared game keeps every player's color under their session name
+            if (Current.Game?.GetComponent<RFGameComp>()?.ownerColors is Dictionary<string, string> cols && cols.TryGetValue(name, out var hex)
+                && ColorUtility.TryParseHtmlString("#" + hex, out var kept)) return kept;
             if (name == Link.MyName || name == MpBridge.MyUsername) return MyColor ?? Roster.Get(Link.MyId)?.color ?? Palette[0];
             var f = Roster.Players.FirstOrDefault(p => p.player == name);
             if (f != null && f.color != Color.white) return f.color;
@@ -449,6 +454,7 @@ namespace RimFactions
             if (mine.Count == 0 || map == null) return;
             foreach (var p in mine) { comp.starters.Remove(p); comp.awayHolder.Remove(p); }
             DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(map), map, mine.Cast<Thing>(), forbid: false);
+            StartingKit.Give(map, owner);
         }
 
         /// Every frame in a together session: show my "make your colonists" window while mine are waiting.

@@ -110,6 +110,7 @@ namespace RimFactions
                 pawns.Add(p);
             }
             if (pawns.Count > 0) DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(map), map, pawns, forbid: false);
+            StartingKit.Give(map, owner);
         }
 
         /// Called once I'm in the session: send my early colonists, if I made any. True when it did.
@@ -259,6 +260,19 @@ namespace RimFactions
     {
         static float lastMessage;
 
+        /// Personal colonists are on: a live session, the host's rule, and two or more players own colonists.
+        public static bool Active
+        {
+            get
+            {
+                if (!Live.InSession || !Rules.Active.ownColonistsOnly || MpBridge.MyUsername == null) return false;
+                var comp = Current.Game?.GetComponent<RFGameComp>();
+                return comp != null && comp.owners.Distinct().Count() > 1;
+            }
+        }
+
+        public static bool Mine(Pawn p) => Current.Game?.GetComponent<RFGameComp>()?.OwnerOf(p) == MpBridge.MyUsername;
+
         public static bool Blocked(Pawn p)
         {
             if (p == null || !Live.InSession || !Rules.Active.ownColonistsOnly) return false;
@@ -290,6 +304,10 @@ namespace RimFactions
 
     static class OwnColonistsTables
     {
-        public static IEnumerable<Pawn> Postfix(IEnumerable<Pawn> __result) => __result.Where(p => !OwnColonists.Blocked(p));
+        /// The Work tab itself: only my colonists (shared ones have their own tab); other tables: mine and shared ones.
+        public static IEnumerable<Pawn> Postfix(IEnumerable<Pawn> __result, MainTabWindow_PawnTable __instance) =>
+            __instance.GetType() == typeof(MainTabWindow_Work) && OwnColonists.Active
+                ? __result.Where(OwnColonists.Mine)
+                : __result.Where(p => !OwnColonists.Blocked(p));
     }
 }

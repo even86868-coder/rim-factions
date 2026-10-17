@@ -139,6 +139,9 @@
   <RF_PawnPageMaking>{0}: still making colonists...</RF_PawnPageMaking>
   <RF_PawnPageStartWithout>Not ready yet: {0}. Start anyway? They'll make colonists when they join.</RF_PawnPageStartWithout>
   <RF_EarlyPreparing>Getting your colonist creation ready...</RF_EarlyPreparing>
+  <RF_OwnerLine>Player: {0}</RF_OwnerLine>
+  <RF_ClaimSelected>Make the {0} selected unowned colonists mine</RF_ClaimSelected>
+  <RF_GiveSelected>Give the {0} selected colonists to {1}</RF_GiveSelected>
   <RF_EarlyMake>Make my colonists now (while the host sets up)</RF_EarlyMake>
   <RF_EarlyRemake>Remake my colonists</RF_EarlyRemake>
   <RF_EarlyHave>Your {0} colonists are ready. They drop into the colony when you join.</RF_EarlyHave>

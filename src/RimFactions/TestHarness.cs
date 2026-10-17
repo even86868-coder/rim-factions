@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using RimFactions.Net;
@@ -199,6 +200,12 @@ namespace RimFactions
                 case "earlydone":
                     var page2 = Find.WindowStack.WindowOfType<Page_ConfigureStartingPawns>();
                     if (page2 != null) HarmonyLib.Traverse.Create(page2).Method("DoNext").GetValue();
+                    break;
+                case "kitcheck":
+                    var kc = Current.Game.GetComponent<RFGameComp>();
+                    var work = HarmonyLib.Traverse.Create(new MainTabWindow_Work()).Property("Pawns").GetValue<IEnumerable<Pawn>>().Select(p => p.LabelShort);
+                    var shared = HarmonyLib.Traverse.Create(new MainTabWindow_SharedWork()).Property("Pawns").GetValue<IEnumerable<Pawn>>().Select(p => p.LabelShort);
+                    Out($"  kits={string.Join(",", kc.kits)} colors={string.Join(",", kc.ownerColors.Select(k => k.Key + ":" + k.Value))} silver={Home.listerThings.ThingsOfDef(ThingDefOf.Silver).Sum(t => t.stackCount)} pods={Home.listerThings.AllThings.Count(t => t is Skyfaller)} work=[{string.Join(",", work)}] shared=[{string.Join(",", shared)}] active={OwnColonists.Active}");
                     break;
                 case "minecount": Out($"  mine={EarlyColonists.mine?.Count.ToString() ?? "none"} state={Current.ProgramState}"); break;
                 case "friendcols":
