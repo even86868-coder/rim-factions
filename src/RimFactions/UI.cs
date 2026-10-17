@@ -108,6 +108,8 @@ namespace RimFactions
             }
             Ownership.Buttons(l);   // feature:OwnColonists
             if (Live.VisitorAway) l.Label("RF_VisitorAway".Translate(Roster.NameOf(Live.VisitorFriend)));
+            if (Live.CanGoHomeEarly && l.ButtonText("RF_GoHomeEarly".Translate()))
+                Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("RF_GoHomeEarlyConfirm".Translate(Roster.NameOf(Live.VisitorFriend)), () => { Close(); Live.GoHomeEarly(); }));
 
             l.GapLine();
             l.Label("RF_Players".Translate());

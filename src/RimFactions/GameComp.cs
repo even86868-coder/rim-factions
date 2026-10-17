@@ -22,7 +22,8 @@ namespace RimFactions
         public Dictionary<string, string> ownerColors = new Dictionary<string, string>();   // feature:PlayerColors: session name -> hex                               // feature:StartingKit: players who got theirs
         public List<Pawn> starters = new List<Pawn>();                              // feature:MakeColonists (held in awayHolder)
         public Dictionary<string, string> orderOwners = new Dictionary<string, string>();   // feature:PersonalWork: order key -> player who gave it
-        public HashSet<string> personalWork = new HashSet<string>();                // feature:PersonalWork: players whose colonists only do their orders
+        public HashSet<string> personalWork = new HashSet<string>();
+        public List<Pawn> noHelp = new List<Pawn>();                                // feature:PersonalWork: colonists that skip other players' orders                // feature:PersonalWork: players whose colonists only do their orders
 
         List<string> rfKeys; List<Faction> rfValues;
 
@@ -68,6 +69,7 @@ namespace RimFactions
             Scribe_Collections.Look(ref ownerColors, "rfOwnerColors", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref orderOwners, "rfOrderOwners", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref personalWork, "rfPersonalWork", LookMode.Value);
+            Scribe_Collections.Look(ref noHelp, "rfNoHelp", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 away = away ?? new List<AwayTrip>();
@@ -82,6 +84,7 @@ namespace RimFactions
                 ownerColors = ownerColors ?? new Dictionary<string, string>();
                 orderOwners = orderOwners ?? new Dictionary<string, string>();
                 personalWork = personalWork ?? new HashSet<string>();
+                noHelp = noHelp?.Where(p => p != null).ToList() ?? new List<Pawn>();
                 for (int i = ownedPawns.Count - 1; i >= 0; i--)
                     if (ownedPawns[i] == null) { ownedPawns.RemoveAt(i); owners.RemoveAt(i); }
             }

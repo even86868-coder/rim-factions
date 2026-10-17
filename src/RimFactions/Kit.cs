@@ -122,11 +122,26 @@ namespace RimFactions
         public static void PushMyColor()
         {
             var me = MpBridge.MyUsername;
-            var mine = Lobby.MyColor;
             var comp = Current.Game?.GetComponent<RFGameComp>();
-            if (me == null || mine == null || comp == null) return;
+            if (me == null || comp == null) return;
+            // a player who never picked a color still gets their own one (the first free one in the palette),
+            // so every player's colonists are colored in every game, not just the host's
+            var mine = Lobby.MyColor ?? (comp.ownerColors.ContainsKey(me) ? (Color?)null : FreeColor(comp, me));
+            if (mine == null) return;
             var hex = ColorUtility.ToHtmlStringRGB(mine.Value);
             if (!comp.ownerColors.TryGetValue(me, out var have) || have != hex) SetColor(me, hex);
+        }
+
+        static Color FreeColor(RFGameComp comp, string me)
+        {
+            var taken = new HashSet<string>(comp.ownerColors.Where(kv => kv.Key != me).Select(kv => kv.Value));
+            int start = (me.GetHashCode() & 0x7fffffff) % Lobby.Palette.Length;
+            for (int i = 0; i < Lobby.Palette.Length; i++)
+            {
+                var c = Lobby.Palette[(start + i) % Lobby.Palette.Length];
+                if (!taken.Contains(ColorUtility.ToHtmlStringRGB(c))) return c;
+            }
+            return Lobby.Palette[start];
         }
 
         /// Logged once per session, so a player's log shows who owns what.

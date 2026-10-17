@@ -67,13 +67,30 @@ namespace RimFactions
 
         // ---- who may work on what ----
 
-        /// This pawn belongs to a player who has personal work on: returns that player, else null.
+        /// This colonist's owner keeps it off other players' orders: returns that owner, else null. Only a colonist's
+        /// own player decides this; nobody can stop someone else's colonists from helping them.
         static string Restricted(Pawn pawn)
         {
             var comp = Comp;
-            if (pawn == null || comp == null || comp.personalWork.Count == 0 || !Live.InSession) return null;
+            if (pawn == null || comp == null || (comp.personalWork.Count == 0 && comp.noHelp.Count == 0) || !Live.InSession) return null;
             var owner = comp.OwnerOf(pawn);
-            return owner != null && comp.personalWork.Contains(owner) ? owner : null;
+            return owner != null && (comp.personalWork.Contains(owner) || comp.noHelp.Contains(pawn)) ? owner : null;
+        }
+
+        public static bool Helps(Pawn pawn) => Restricted(pawn) == null;
+
+        /// One colonist: does it work on other players' orders too?
+        [SyncMethod]
+        public static void SetHelps(Pawn pawn, bool helps)
+        {
+            var comp = Current.Game.GetComponent<RFGameComp>();
+            var owner = comp.OwnerOf(pawn);
+            if (owner == null) return;
+            if (comp.personalWork.Remove(owner))   // the all-colonists switch becomes per colonist
+                for (int i = 0; i < comp.ownedPawns.Count; i++)
+                    if (comp.owners[i] == owner && comp.ownedPawns[i] != null && !comp.noHelp.Contains(comp.ownedPawns[i])) comp.noHelp.Add(comp.ownedPawns[i]);
+            if (helps) comp.noHelp.Remove(pawn);
+            else if (!comp.noHelp.Contains(pawn)) comp.noHelp.Add(pawn);
         }
 
         static bool OthersOrder(string key, string me)
@@ -112,6 +129,7 @@ namespace RimFactions
             var comp = Current.Game.GetComponent<RFGameComp>();
             if (owner.NullOrEmpty()) return;
             if (on) comp.personalWork.Add(owner); else comp.personalWork.Remove(owner);
+            comp.noHelp.RemoveAll(p => comp.OwnerOf(p) == owner);   // the switch sets all my colonists
         }
 
         public static bool IsOn(string owner) => Comp?.personalWork.Contains(owner) == true;
@@ -170,5 +188,40 @@ namespace RimFactions
     static class PersonalWorkTab
     {
         static void Postfix(Rect rect) => PersonalWork.Toggle(new Rect(rect.xMax - 360f, rect.y, 340f, 24f));
+    }
+
+    /// feature:PersonalWork — the Work tab's "Help others" column: for each of my colonists, whether it also works on
+    /// orders other players gave. Other players' colonists show no box: that's their choice.
+    public class PawnColumnWorker_HelpOthers : PawnColumnWorker_Checkbox
+    {
+        protected override bool HasCheckbox(Pawn pawn) =>
+            Live.InSession && Current.Game?.GetComponent<RFGameComp>() is RFGameComp comp && comp.togetherOpen && comp.OwnerOf(pawn) == MpBridge.MyUsername;
+
+        protected override bool GetValue(Pawn pawn) => PersonalWork.Helps(pawn);
+
+        protected override void SetValue(Pawn pawn, bool value, PawnTable table) => PersonalWork.SetHelps(pawn, value);
+
+        protected override string GetTip(Pawn pawn) => "RF_HelpOthersTip".Translate();
+    }
+}
+
+namespace RimFactions
+{
+    /// feature:PersonalWork — blueprints and frames say which player ordered them.
+    [HarmonyPatch(typeof(Blueprint), nameof(Blueprint.GetInspectString))]
+    static class OrderedByBlueprint { static void Postfix(Thing __instance, ref string __result) => __result = OrderedBy.Add(__instance, __result); }
+
+    [HarmonyPatch(typeof(Frame), nameof(Frame.GetInspectString))]
+    static class OrderedByFrame { static void Postfix(Thing __instance, ref string __result) => __result = OrderedBy.Add(__instance, __result); }
+
+    static class OrderedBy
+    {
+        public static string Add(Thing t, string text)
+        {
+            var comp = Current.Game?.GetComponent<RFGameComp>();
+            if (comp == null || !comp.orderOwners.TryGetValue(PersonalWork.ThingKey(t), out var who)) return text;
+            var line = "RF_OrderedBy".Translate(who).Colorize(Lobby.ColorOf(who));
+            return text.NullOrEmpty() ? line : text + "\n" + line;
+        }
     }
 }

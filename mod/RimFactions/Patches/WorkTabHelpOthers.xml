@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- feature:PersonalWork: the "help others" column sits right after the colonist's name in the Work tab -->
+  <Operation Class="PatchOperationInsert">
+    <xpath>Defs/PawnTableDef[defName="Work"]/columns/li[text()="LabelWithIcon"]</xpath>
+    <order>Append</order>
+    <value>
+      <li>RF_HelpOthers</li>
+    </value>
+  </Operation>
+</Patch>

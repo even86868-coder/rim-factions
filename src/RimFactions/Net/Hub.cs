@@ -67,8 +67,8 @@ namespace RimFactions.Net
                 case "Goodwill":
                     ChangeGoodwill(m.Get("a"), m.Get("b"), m.GetInt("change"), m.Get("reason"));
                     return;
-                case "SetRelation":   // feature:RelationCheat: only the host
-                    if (playerId != Link.MyId) return;
+                case "SetRelation":   // the host sets any pair (feature:RelationCheat); a player sets their own (feature:FactionStance)
+                    if (playerId != Link.MyId && m.Get("a") != playerId && m.Get("b") != playerId) return;
                     SetRelation(m.Get("a"), m.Get("b"), m.Get("kind"));
                     return;
                 case "Lobby":

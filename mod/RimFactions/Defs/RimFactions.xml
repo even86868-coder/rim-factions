@@ -70,4 +70,12 @@
     <iconPath>UI/Commands/RF_Trip</iconPath>
   </MainButtonDef>
 
+  <PawnColumnDef>
+    <defName>RF_HelpOthers</defName>
+    <label>help others</label>
+    <headerTip>Your colonists only: checked, the colonist also works on orders other players gave. Each player decides for their own colonists.</headerTip>
+    <workerClass>RimFactions.PawnColumnWorker_HelpOthers</workerClass>
+    <sortable>true</sortable>
+  </PawnColumnDef>
+
 </Defs>

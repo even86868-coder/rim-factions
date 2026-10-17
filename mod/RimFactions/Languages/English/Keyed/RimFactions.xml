@@ -24,6 +24,12 @@
   <RF_EndVisits>Send all visitors home</RF_EndVisits>
   <RF_EndSession>End the live session (back to solo)</RF_EndSession>
   <RF_EndSessionConfirm>End the live session? Friends still in it are disconnected; their colonists stay in your colony. Your game continues as a normal solo save.</RF_EndSessionConfirm>
+  <RF_GoHomeEarly>Go back to my colony (my colonists stay to help)</RF_GoHomeEarly>
+  <RF_GoHomeEarlyConfirm>Leave {0}'s game and load your own colony? Your colonists stay and keep helping {0}; they come home when the visit ends. From home you can send more colonists to join them.</RF_GoHomeEarlyConfirm>
+  <RF_GoneHomeEarly>Back home. Your colonists are still helping {0}.</RF_GoneHomeEarly>
+  <RF_HelpOthersTip>Checked: this colonist also works on orders other players gave (their buildings, mining, bills). Unchecked: only your own orders, and work nobody ordered.</RF_HelpOthersTip>
+  <RF_HelpOthers>Help others</RF_HelpOthers>
+  <RF_OrderedBy>Ordered by: {0}</RF_OrderedBy>
   <RF_VisitorAway>Your colonists are visiting {0}. They come home when the visit ends.</RF_VisitorAway>
   <RF_Players>Players on this planet</RF_Players>
   <RF_You>(you)</RF_You>
@@ -32,6 +38,10 @@
   <RF_OfflineSuffix>(offline: arrives when they're back)</RF_OfflineSuffix>
   <RF_Colonists>colonists</RF_Colonists>
   <RF_GoodwillShort>Goodwill {0} ({1})</RF_GoodwillShort>
+  <RF_StanceButton>Player: {0}</RF_StanceButton>
+  <RF_Stance_Ally>Friendly with {0}</RF_Stance_Ally>
+  <RF_Stance_Neutral>Neutral with {0}</RF_Stance_Neutral>
+  <RF_Stance_Hostile>Hostile with {0}</RF_Stance_Hostile>
   <RF_SetRelation>Set relation</RF_SetRelation>
   <RF_SetRelationOption>{0} and {1}: {2}</RF_SetRelationOption>
   <RF_Kind_Neutral>neutral</RF_Kind_Neutral>

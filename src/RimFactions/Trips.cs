@@ -96,20 +96,31 @@ namespace RimFactions
 
             IntVec3 spot;
             Lord lord;
+            var tracker = map.GetComponent<TripTracker>();
+            // feature:Reinforcements: the same player's group still here (same stance, not leaving): the new
+            // arrivals join it instead of starting a raid or visit of their own
+            var already = tracker.trips.Where(t => t.senderId == m.From && t.stance == stance && !t.leaving)
+                .SelectMany(t => t.pawns).FirstOrDefault(p => p != null && p.Spawned && !p.Dead && !p.Downed && p.Map == map && p.GetLord() != null);
             if (stance == "raid")
             {
-                if (!RCellFinder.TryFindRandomPawnEntryCell(out spot, map, CellFinder.EdgeRoadChance_Hostile)) spot = CellFinder.RandomEdgeCell(map);
+                if (already != null)
+                {
+                    if (!CellFinder.TryFindRandomEdgeCellNearWith(already.Position, 30f, map, c => c.Standable(map) && !c.Fogged(map), out spot))
+                        spot = CellFinder.RandomEdgeCell(map);
+                }
+                else if (!RCellFinder.TryFindRandomPawnEntryCell(out spot, map, CellFinder.EdgeRoadChance_Hostile)) spot = CellFinder.RandomEdgeCell(map);
                 foreach (var p in pawns) GenSpawn.Spawn(p, CellFinder.RandomClosewalkCellNear(spot, map, 5), map);
-                lord = LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, canKidnap: false, canTimeoutOrFlee: true, sappers: false, useAvoidGridSmart: false, canSteal: false), map, pawns);
+                if (already != null) { lord = already.GetLord(); lord.AddPawns(pawns); }
+                else lord = LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, canKidnap: false, canTimeoutOrFlee: true, sappers: false, useAvoidGridSmart: false, canSteal: false), map, pawns);
             }
             else
             {
                 spot = Arrival.DropAt(map, pawns.Cast<Thing>().ToList());
-                lord = LordMaker.MakeNewLord(faction, new LordJob_AssistColony(faction, spot), map, pawns);
+                if (already != null) { lord = already.GetLord(); lord.AddPawns(pawns); }
+                else lord = LordMaker.MakeNewLord(faction, new LordJob_AssistColony(faction, spot), map, pawns);
                 Roster.ChangeGoodwill(m.From, RFSettings.HelpTripGoodwill, "help");
             }
 
-            var tracker = map.GetComponent<TripTracker>();
             tracker.trips.Add(new VisitTrip
             {
                 tripId = m.Get("tripId"), senderId = m.From, stance = stance, startTick = Find.TickManager.TicksGame,

@@ -419,6 +419,23 @@ namespace RimFactions
             Inbox.Process();
         }
 
+        /// feature:GoHomeEarly — the visiting player loads their own colony while their colonists stay with the
+        /// friend (the friend's game keeps running them). From home they can send reinforcements; the colonists
+        /// come home the usual way when the visit ends.
+        public static bool CanGoHomeEarly => visitor != null && InSession && !MpBridge.Hosting;
+
+        public static void GoHomeEarly()
+        {
+            if (!CanGoHomeEarly) return;
+            var home = visitor.homeSave;
+            var friend = visitor.friendId;
+            visitor = null;
+            SaveVisitor();
+            Messages.Message("RF_GoneHomeEarly".Translate(Roster.NameOf(friend)), MessageTypeDefOf.NeutralEvent, false);
+            MpBridge.Stop();
+            GameDataSaveLoader.LoadGame(home);
+        }
+
         public static bool VisitorAway => visitor != null;
         public static string VisitorFriend => visitor?.friendId;
     }
