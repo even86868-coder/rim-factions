@@ -44,7 +44,52 @@ namespace RimFactions.Compat.Mods
                 foreach (var settle in new[] { "SettleFromMap", "SettleFromInventory", "DiscardAll", "CommitAll" })
                     n += SyncMethods.Register(AccessTools.Method(utility, settle));
             }
+            // The rank and gene-variant checkers walk the colonists a few at a time and keep their place in memory only,
+            // so a friend who joins starts the walk over and checks different colonists than the host (Desync-08).
+            // While live, each colonist is checked on a step worked out from the game's own clock instead.
+            var hn = new Harmony("melty.rimfactions.compat.rimdark.sweep");
+            foreach (var name in new[] { "RankEligibilityNotifier", "GeneVariantAvailabilityNotifier" })
+            {
+                var type = AccessTools.TypeByName("Core40k." + name);
+                var tick = type == null ? null : AccessTools.Method(type, "Tick");
+                var check = type == null ? null : AccessTools.Method(type, "CheckPawn");
+                if (tick == null || check == null) continue;
+                checks[type] = check;
+                hn.Patch(tick, prefix: new HarmonyMethod(typeof(RimDark), name == "RankEligibilityNotifier" ? nameof(RankSweep) : nameof(GeneSweep)));
+                n++;
+            }
             Log.Message($"[Rim Factions] RimDark 40k: synced {n} rank and customization actions");
+        }
+
+        static readonly Dictionary<Type, System.Reflection.MethodInfo> checks = new Dictionary<Type, System.Reflection.MethodInfo>();
+        const int Steps = 25, StepTicks = 50;   // the mod's own pace: every colonist once per 1250 ticks
+
+        static bool RankSweep() => Sweep("RankEligibilityNotifier", () => Setting("notifyOnRankEligibility"), announce: null);
+        static bool GeneSweep() => Sweep("GeneVariantAvailabilityNotifier", () => ModsConfig.BiotechActive, announce: () => Setting("notifyOnGeneVariantAvailability"));
+
+        static bool Setting(string field)
+        {
+            var settings = AccessTools.Property(AccessTools.TypeByName("Core40k.Core40kUtils"), "ModSettings")?.GetValue(null);
+            return settings != null && Traverse.Create(settings).Field(field).GetValue<bool>();
+        }
+
+        static bool Sweep(string name, Func<bool> on, Func<bool> announce)
+        {
+            if (!MP.IsInMultiplayer) return true;
+            int ticks = Find.TickManager.TicksGame;
+            if (ticks % StepTicks != 0 || !on()) return false;
+            var check = checks.FirstOrDefault(kv => kv.Key.Name == name).Value;
+            if (check == null) return false;
+            int step = ticks / StepTicks % Steps;
+            bool say = announce?.Invoke() ?? true;
+            var pawns = PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists_NoCryptosleep;
+            for (int i = step; i < pawns.Count; i += Steps)
+            {
+                var pawn = pawns[i];
+                if (pawn == null || pawn.Dead || pawn.Destroyed) continue;
+                check.Invoke(null, new object[] { pawn, say });
+            }
+            return false;
         }
 
         static bool Interface => MP.IsInMultiplayer && MP.InInterface && !applying;
