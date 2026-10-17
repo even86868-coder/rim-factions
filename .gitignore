@@ -1,0 +1,7 @@
+# build output (releases go to release/)
+build/
+bin/
+obj/
+*.user
+*.suo
+.vs/

@@ -1,0 +1,169 @@
+{
+  "_about": "Rim Factions v2 design sheets. Source of truth: change a row here before changing code. Each row is one thing; each column one property. tools/preflight.ps1 checks every cell, every cross-reference, and that every row id appears in src/.",
+  "_model": "Each player plays their own save (no lockstep, no desyncs). A link (Steam P2P relay, or TCP for LAN/local) joins the games: roster, planet markers, goodwill, news, gifts and trips. Live Multiplayer sessions open only for 'Start together' and 'live help' trips.",
+
+  "settings": {
+    "_columns": ["id", "value", "type", "used_by", "note"],
+    "rows": [
+      { "id": "MaxPlayers",            "value": 4,      "type": "int",    "used_by": "system:LinkHub",        "note": "Most players on one planet (host included)" },
+      { "id": "LinkSteamChannel",      "value": 7,      "type": "int",    "used_by": "system:SteamTransport", "note": "Steam P2P channel; Multiplayer uses 0" },
+      { "id": "LinkTcpPort",           "value": 30602,  "type": "int",    "used_by": "system:TcpTransport",   "note": "Loopback TCP for local/LAN testing" },
+      { "id": "GoodwillPerSilver",     "value": 0.025,  "type": "float",  "used_by": "feature:GiftItems",     "note": "+1 goodwill per 40 silver gifted" },
+      { "id": "GiftGoodwillCap",       "value": 25,     "type": "int",    "used_by": "feature:GiftItems",     "note": "Max goodwill one item gift earns" },
+      { "id": "ColonistGiftGoodwill",  "value": 15,     "type": "int",    "used_by": "feature:GiftColonist",  "note": "Goodwill for gifting a colonist" },
+      { "id": "HelpTripGoodwill",      "value": 10,     "type": "int",    "used_by": "feature:TripHelpAI",    "note": "Goodwill when a help trip arrives" },
+      { "id": "RaidGoodwill",          "value": -40,    "type": "int",    "used_by": "feature:TripRaidAI",    "note": "Goodwill when a raid arrives" },
+      { "id": "HostileAt",             "value": -75,    "type": "int",    "used_by": "system:Goodwill",       "note": "At or below: hostile" },
+      { "id": "AllyAt",                "value": 75,     "type": "int",    "used_by": "system:Goodwill",       "note": "At or above: ally" },
+      { "id": "HelpStayTicks",         "value": 60000,  "type": "int",    "used_by": "feature:TripHelpAI",    "note": "Help trips stay at most 1 day" },
+      { "id": "HelpCalmTicks",         "value": 5000,   "type": "int",    "used_by": "feature:TripHelpAI",    "note": "Once helpers have seen a fight, they leave after this long with no threats" },
+      { "id": "RaidMaxTicks",          "value": 90000,  "type": "int",    "used_by": "feature:TripRaidAI",    "note": "Raiders give up after 1.5 days" },
+      { "id": "TogetherStartPawns",    "value": 3,      "type": "int",    "used_by": "feature:StartTogether", "note": "Colonists a joining player brings when starting together" },
+      { "id": "HelpCallCooldownTicks", "value": 30000,  "type": "int",    "used_by": "feature:CallForHelp",   "note": "One call per half day" },
+      { "id": "HelpCallTimeoutTicks",  "value": 15000,  "type": "int",    "used_by": "feature:CallForHelp",   "note": "The call letter expires after 6 hours" },
+      { "id": "HelpCallSendCount",     "value": 3,      "type": "int",    "used_by": "feature:CallForHelp",   "note": "Fighters one click sends (never the last colonist)" },
+      { "id": "TradeStockMaxStacks",   "value": 250,    "type": "int",    "used_by": "feature:TradeCaravan",  "note": "Most valuable stockpile stacks offered" },
+      { "id": "TradeGoodwill",         "value": 3,      "type": "int",    "used_by": "feature:TradeCaravan",  "note": "Goodwill per completed trade" },
+      { "id": "PlanetEventFirstTicks", "value": 120000, "type": "int",    "used_by": "feature:PlanetEvent",   "note": "First assault 2 days into the host's session" },
+      { "id": "PlanetEventEveryTicks", "value": 300000, "type": "int",    "used_by": "feature:PlanetEvent",   "note": "Then every 5 days (host's clock)" },
+      { "id": "PlanetEventDurationTicks","value": 60000,"type": "int",    "used_by": "feature:PlanetEvent",   "note": "Help sent within a day counts" },
+      { "id": "PlanetEventMinPlayers", "value": 2,      "type": "int",    "used_by": "feature:PlanetEvent",   "note": "Online colonies needed" },
+      { "id": "PlanetEventRewardSilver","value": 300,   "type": "int",    "used_by": "feature:PlanetEvent",   "note": "Silver per helping colony" },
+      { "id": "PlanetEventPointsFactor","value": 0.8,   "type": "float",  "used_by": "feature:PlanetEvent",   "note": "Raid strength vs the storyteller's normal big threat" },
+      { "id": "HostLogPrefix",        "value": "Hosting at ", "type": "string", "used_by": "system:HostAddressLog", "note": "Melty reads the address after this" },
+      { "id": "LogFile",               "value": "{localappdata}/RimFactions/logs/latest.log", "type": "string", "used_by": "system:HostAddressLog", "note": "Melty connect.address.log" }
+    ]
+  },
+
+  "messages": {
+    "_columns": ["id", "direction", "fields", "handled_by"],
+    "rows": [
+      { "id": "Hello",       "direction": "client>hub",     "fields": "player, colony, color, tile, colonists, wealth, steamId, version", "handled_by": "system:LinkHub" },
+      { "id": "Roster",      "direction": "hub>all",        "fields": "players[id, player, colony, color, tile, colonists, wealth, online], goodwill[a, b, value], world[seed, coverage, rain, temp, pop, pollution], together", "handled_by": "system:Roster" },
+      { "id": "Gift",        "direction": "any>hub>target", "fields": "from, to, items[ItemData], pawns[PawnData]", "handled_by": "feature:GiftItems" },
+      { "id": "Trip",        "direction": "any>hub>target", "fields": "tripId, from, to, mode(ai|live), stance(help|raid), pawns[PawnData]", "handled_by": "feature:TripHelpAI" },
+      { "id": "TripReturn",  "direction": "target>hub>from","fields": "tripId, survivors[PawnData], dead[name], captured[name]", "handled_by": "news:TripReturned" },
+      { "id": "LiveReady",   "direction": "target>hub>from","fields": "tripId, steam, lan", "handled_by": "feature:TripHelpLive" },
+      { "id": "LiveDecline", "direction": "target>hub>from","fields": "tripId, reason", "handled_by": "feature:TripHelpLive" },
+      { "id": "Goodwill",    "direction": "client>hub",     "fields": "a, b, change, reason", "handled_by": "system:Goodwill" },
+      { "id": "News",        "direction": "hub>all",        "fields": "label, text, kind", "handled_by": "system:NewsLetters" },
+      { "id": "Together",    "direction": "host>hub",       "fields": "open, steam, lan", "handled_by": "feature:StartTogether" },
+      { "id": "SaveChunk",   "direction": "player>co-players", "fields": "gameId, name, id, by, ticks, utc, size, h, players, index, count, data", "handled_by": "feature:SharedSaves" },
+      { "id": "SaveHave",    "direction": "player>* on connect", "fields": "gameId, name, id, by, ticks, utc, size, h, players", "handled_by": "feature:SharedSaves" },
+      { "id": "SaveWant",    "direction": "player>player",     "fields": "gameId, id", "handled_by": "feature:SharedSaves" },
+      { "id": "MyColonists", "direction": "friend>host", "fields": "mp (Multiplayer name), pawns[PawnData]", "handled_by": "feature:LandTogether" },
+      { "id": "WantTogether", "direction": "friend>host", "fields": "what (join | new)", "handled_by": "feature:AskHost" },
+      { "id": "Lobby",       "direction": "host>hub",         "fields": "lobby[open, mode, relation, started, host]", "handled_by": "feature:Lobby" },
+      { "id": "LobbyMember", "direction": "friend>hub",       "fields": "m[ready]", "handled_by": "feature:Lobby" },
+      { "id": "ModListRequest", "direction": "any>hub>friend", "fields": "(none)", "handled_by": "feature:ModChecker" },
+      { "id": "ModList",     "direction": "friend>hub>asker", "fields": "mods[id, name, ws, xml], order (full active list in load order)", "handled_by": "feature:ModChecker, feature:ModSync" },
+      { "id": "HelpCall",    "direction": "any>hub>all",   "fields": "from, colony", "handled_by": "feature:CallForHelp" },
+      { "id": "TradeStockRequest", "direction": "trader>hub>friend", "fields": "requestId", "handled_by": "feature:TradeCaravan" },
+      { "id": "TradeStock",  "direction": "friend>hub>trader", "fields": "requestId, items[ItemData+thing] or busy", "handled_by": "feature:TradeCaravan" },
+      { "id": "TradeDeal",   "direction": "trader>hub>friend", "fields": "taken[thing, def, count], given[ItemData]", "handled_by": "feature:TradeCaravan" },
+      { "id": "PlanetEvent", "direction": "hub>all",        "fields": "eventId, kind(mech|raid)", "handled_by": "feature:PlanetEvent" },
+      { "id": "PlanetReward","direction": "hub>helper",     "fields": "eventId, silver", "handled_by": "feature:PlanetEvent" }
+    ]
+  },
+
+  "features": {
+    "_columns": ["id", "label", "trigger", "effect", "goodwill", "news", "live_session"],
+    "rows": [
+      { "id": "GiftItems",     "label": "Gift to colony",              "trigger": "gizmo on item stacks on your home map", "effect": "items vanish here and land at the friend's colony by drop pod; unknown modded items arrive as silver of equal value", "goodwill": "setting:GoodwillPerSilver", "news": "news:GiftSent", "live_session": "no" },
+      { "id": "GiftColonist",  "label": "Gift colonist",               "trigger": "gizmo on a free, healthy colonist", "effect": "colonist leaves here and joins the friend's colony by drop pod", "goodwill": "setting:ColonistGiftGoodwill", "news": "news:ColonistGifted", "live_session": "no" },
+      { "id": "TripHelpAI",    "label": "Send to colony: help, AI",    "trigger": "gizmo on selected colonists > friend > Help > AI", "effect": "colonists go away from your map; in the friend's game they drop in as allies (AssistColony) and leave when calm; survivors come home with injuries and gear", "goodwill": "setting:HelpTripGoodwill", "news": "news:TripArrived", "live_session": "no" },
+      { "id": "TripRaidAI",    "label": "Send to colony: raid, AI",    "trigger": "gizmo on selected colonists > friend > Raid > AI", "effect": "colonists walk in from the map edge as hostile raiders (AssaultColony); survivors who flee come home; downed raiders can be captured", "goodwill": "setting:RaidGoodwill", "news": "news:TripArrived", "live_session": "no" },
+      { "id": "TripHelpLive",  "label": "Send to colony: help, live",  "trigger": "gizmo on selected colonists > friend > Help > Live", "effect": "friend accepts; their game opens a live co-op session with your colonists dropped in; your game saves and joins; 'Send visitors home' ends it, survivors return to your save and both games go back to solo", "goodwill": "setting:HelpTripGoodwill", "news": "news:TripArrived", "live_session": "yes" },
+      { "id": "SharedSaves",  "label": "Shared saves",                "trigger": "a shared game (lobby game, together session) is saved or loaded; a link connects", "effect": "each save is copied to the shared cloud folder (Mod settings: a Google Drive / OneDrive / Dropbox folder all players share) and sent in chunks to the other players; loading a shared game picks the newest copy (in-game time, then real time); copies played apart are kept side by side with a warning", "goodwill": "none", "news": "none", "live_session": "only the Multiplayer host's save is shared" },
+      { "id": "AskHost", "label": "Ask the host", "trigger": "friend's welcome window or Rim Factions window when the host has neither a together session nor a lobby open", "effect": "Join <host>'s colony / Start a new game together with <host> send message:WantTogether; the host gets a popup that opens their colony for playing together (feature:StartTogether) or the lobby (feature:Lobby, leaving their current game for the main menu first); the asking friend is taken in automatically once it's open", "goodwill": "none", "news": "none", "live_session": "yes" },
+      { "id": "Lobby",        "label": "New game with friends",       "trigger": "main menu: Rim Factions > Start a new game with friends (host); friends linked to the planet get the lobby window", "effect": "host picks Together or Separate and the starting relation (allied, neutral, rival) applied to every pair of players in the lobby; friends pick a color and mark ready; Start sends the host through RimWorld's new-game screens; Together: the host's new colony opens a together session and friends join it automatically (feature:StartTogether); Separate: once the host's colony is on the planet, friends' own new-colony setup opens on that planet", "goodwill": "starting relation from the lobby", "news": "news:JoinedTogether", "live_session": "together: yes; separate: no" },
+      { "id": "LandTogether", "label": "Land together", "trigger": "together lobby: the host reaches RimWorld's colonist page", "effect": "the lobby state gets stage=pawns and friends' lobby windows ask them to make their colonists now (feature:MakeColonistsEarly); a friend's finished colonists go to the host as message:MyColonists, which marks them ready; the host's colonist page lists who's ready; on Start (asking first if someone isn't) friends' colonists are built from PawnData into the starting colonists, so everyone's land in the same starting drop pods, and are tagged as their owners' when the together session opens", "goodwill": "none", "news": "none", "live_session": "yes" },
+      { "id": "MakeColonistsEarly", "label": "Make my colonists now", "trigger": "together lobby, before or while the host sets up the world", "effect": "RimWorld's own new-game screens open for the friend (host's planet if known); Start on the colonist page keeps setting:TogetherStartPawns colonists as PawnData and returns to the menu; on joining the session they are built in every game at once (synced) and drop into the colony as the friend's own, instead of feature:MakeColonists", "goodwill": "none", "news": "news:JoinedTogether", "live_session": "yes" },
+      { "id": "OwnColonists", "label": "Your own colonists", "trigger": "automatic in a shared colony with two or more owners; host rule (Mod settings) can turn it off", "effect": "other players' colonists can't be selected or ordered (a message says whose they are), and Work / Schedule / Assign list only your colonists; colonists nobody owns stay everyone's", "goodwill": "none", "news": "none", "live_session": "yes" },
+      { "id": "MakeColonists","label": "Make your colonists",         "trigger": "joining a together session", "effect": "the joiner's colonists are generated in every game at once (synced) and wait off the map; the joiner sees RimWorld's character card and can randomize (any, man, woman), rename, then drop them into the colony by drop pod", "goodwill": "none", "news": "news:JoinedTogether", "live_session": "yes" },
+      { "id": "PlayerColors", "label": "Player colors",               "trigger": "lobby, or Mod settings > Just for you", "effect": "each player picks a color from 12; it's sent in their Hello and used for their name tags, map marker and roster stripe", "goodwill": "none", "news": "none", "live_session": "no" },
+      { "id": "NameTags",     "label": "Player name tags",            "trigger": "automatic when pawns of two or more players share a map", "effect": "each player's name shows above their pawns in their color; can be turned off in Mod settings", "goodwill": "none", "news": "none", "live_session": "yes" },
+      { "id": "StartTogether", "label": "Play together on this colony","trigger": "host: Rim Factions tab > Invite friends to this colony; joiner: join dialog > Join live", "effect": "live co-op session on the host's colony; each joining player gets setting:TogetherStartPawns colonists of their own, tagged as theirs, made in feature:MakeColonists", "goodwill": "none", "news": "news:JoinedTogether", "live_session": "yes" },
+      { "id": "SplitOff",      "label": "Leave to found own colony",   "trigger": "gizmo on your own colonists during a together session", "effect": "your colonists leave as a caravan on the same planet; your game turns into your own save without the shared colony (it becomes a friend marker); settle anywhere", "goodwill": "none", "news": "news:SplitOff", "live_session": "yes" },
+      { "id": "CallForHelp",   "label": "Call friends for help",       "trigger": "alert while a hostile threat is on your home map, setting:HelpCallCooldownTicks apart", "effect": "every online friend gets a letter; 'Send N fighters' sends their best fighters as a help trip (feature:TripHelpAI)", "goodwill": "setting:HelpTripGoodwill", "news": "news:TripArrived", "live_session": "no" },
+      { "id": "TradeCaravan",  "label": "Trade with a friend's colony","trigger": "caravan float menu on a friend colony marker (friend online, not hostile)", "effect": "the friend's game sends its stockpiles and home-area items (forbidden ones stay hidden); the vanilla trade screen opens; the deal leaves their stockpile and pays them by drop pod", "goodwill": "setting:TradeGoodwill", "news": "news:TradeDone", "live_session": "no" },
+      { "id": "PlanetEvent",   "label": "Planet-wide assault",         "trigger": "hub, every setting:PlanetEventEveryTicks of the host's clock, with setting:PlanetEventMinPlayers online colonies", "effect": "every colony gets a mech or raider assault; colonies that send help to another within setting:PlanetEventDurationTicks get setting:PlanetEventRewardSilver silver", "goodwill": "none", "news": "news:PlanetDefended", "live_session": "no" },
+      { "id": "SettingsMenu",  "label": "Rim Factions mod settings",   "trigger": "Options > Mod settings > Rim Factions", "effect": "turn features on/off (call for help, trade, assaults, raids, live visits, playing together) and tune goodwill, helping, assault and together numbers; the host's rules apply to the whole planet (system:PlanetRules)", "goodwill": "none", "news": "none", "live_session": "no" },
+      { "id": "ModSync",      "label": "Use their mod list",         "trigger": "join welcome screen, or Compare mods: Use <friend>'s mod list", "effect": "gets the friend's full active list in load order (message:ModList), subscribes to and downloads the Workshop mods you lack, saves your own list, sets yours to theirs and restarts RimWorld (asks first if a game is open); Restore my own mod list switches back; mods that can't be downloaded are listed and left out", "goodwill": "none", "news": "none", "live_session": "no" },
+      { "id": "ModChecker",   "label": "Compare mods",               "trigger": "Rim Factions window: a friend's row; or the join welcome screen", "effect": "asks the friend's game for its mod list; shows mods each side lacks (Workshop links for theirs) and every mod's live-play rating from the Multiplayer team's compatibility list; the Rim Factions stack itself is left out", "goodwill": "none", "news": "none", "live_session": "no" },
+      { "id": "JoinWelcome", "label": "Welcome to a friend's planet", "trigger": "joiner arrives from a join link and the hub welcomes it (main menu or in game)", "effect": "a window offers: join their colony live (when a together session is open), start my own colony on this planet, or keep playing my own save; shown once per join", "goodwill": "none", "news": "news:JoinedPlanet", "live_session": "no" },
+      { "id": "SharedPlanet",  "label": "Start on my friend's planet", "trigger": "joiner: join dialog > Start my own colony", "effect": "the new-world page is pre-filled with the host's seed and settings so both colonies share one planet", "goodwill": "none", "news": "news:JoinedPlanet", "live_session": "no" }
+    ]
+  },
+
+  "news": {
+    "_columns": ["id", "hook", "label_key", "text_key", "letter"],
+    "rows": [
+      { "id": "GiftSent",      "hook": "feature:GiftItems",     "label_key": "RF_NewsGiftLabel",     "text_key": "RF_NewsGiftText",     "letter": "PositiveEvent" },
+      { "id": "ColonistGifted","hook": "feature:GiftColonist",  "label_key": "RF_NewsColonistLabel", "text_key": "RF_NewsColonistText", "letter": "PositiveEvent" },
+      { "id": "TripArrived",   "hook": "feature:TripHelpAI",    "label_key": "RF_NewsTripLabel",     "text_key": "RF_NewsTripText",     "letter": "NeutralEvent" },
+      { "id": "TripReturned",  "hook": "message:TripReturn",    "label_key": "RF_NewsReturnLabel",   "text_key": "RF_NewsReturnText",   "letter": "NeutralEvent" },
+      { "id": "RelationChanged","hook": "system:Goodwill",      "label_key": "RF_NewsRelationLabel", "text_key": "RF_NewsRelationText", "letter": "NeutralEvent" },
+      { "id": "JoinedPlanet",  "hook": "feature:SharedPlanet",  "label_key": "RF_NewsJoinedLabel",   "text_key": "RF_NewsJoinedText",   "letter": "NeutralEvent" },
+      { "id": "JoinedTogether","hook": "feature:StartTogether", "label_key": "RF_NewsTogetherLabel", "text_key": "RF_NewsTogetherText", "letter": "PositiveEvent" },
+      { "id": "TradeDone",     "hook": "feature:TradeCaravan",  "label_key": "RF_NewsTradeLabel",    "text_key": "RF_NewsTradeText",    "letter": "NeutralEvent" },
+      { "id": "PlanetDefended","hook": "feature:PlanetEvent",   "label_key": "RF_NewsDefendedLabel", "text_key": "RF_NewsDefendedText", "letter": "PositiveEvent" },
+      { "id": "SplitOff",      "hook": "feature:SplitOff",     "label_key": "RF_NewsSplitLabel",    "text_key": "RF_NewsSplitText",    "letter": "NeutralEvent" }
+    ]
+  },
+
+  "data": {
+    "_columns": ["id", "fields", "rebuild"],
+    "rows": [
+      { "id": "ItemData", "fields": "def, stuff, quality, hitPoints, count, value", "rebuild": "ThingMaker.MakeThing(def, stuff); quality; HP; stack; unknown def -> silver of 'value'" },
+      { "id": "PawnData", "fields": "expansions: psylink level, abilities (not role powers), royal titles+favor, tattoos, non-cosmetic endo/xeno genes + custom xenotype name/icon, mutant, mechs (kind+health); base: id, kind, gender, ageBio, ageChrono, name(first,nick,last), childhood, adulthood, traits[def,degree], skills[def,level,passion,xp], head, body, hair, beard, hairColor, skinColor, xenotype, hediffs[def,part,partIndex,severity,permanent], apparel[ItemData], equipment[ItemData], inventory[ItemData]", "rebuild": "PawnGenerator then overwrite each field; on return to the original pawn only health and gear are applied" }
+    ]
+  },
+
+  "hooks": {
+    "_columns": ["id", "type", "method", "kind", "purpose"],
+    "rows": [
+      { "id": "ItemGiftGizmo",       "type": "Verse.ThingWithComps",            "method": "GetGizmos()",          "kind": "postfix", "purpose": "feature:GiftItems gizmo" },
+      { "id": "ColonistGizmos",      "type": "Verse.Pawn",                      "method": "GetGizmos()",          "kind": "postfix", "purpose": "feature:GiftColonist, trips, feature:SplitOff gizmos" },
+      { "id": "TripExitHook",        "type": "Verse.Pawn",                      "method": "ExitMap(bool, Rot4)",  "kind": "prefix",  "purpose": "AI trip pawns leaving a map are recorded as survivors" },
+      { "id": "WorldParamsPrefill",  "type": "RimWorld.Page_CreateWorldParams", "method": "PreOpen()",            "kind": "postfix", "purpose": "feature:SharedPlanet seed and settings" },
+      { "id": "HostWindowDefaults",  "type": "Multiplayer.Client.HostWindow",   "method": ".ctor(SaveFile)",      "kind": "postfix", "purpose": "live sessions default to Steam, 4 players, one faction" }
+    ]
+  },
+
+  "systems": {
+    "_columns": ["id", "where", "does", "verified_by"],
+    "rows": [
+      { "id": "LinkHub",        "where": "host's game",         "does": "accepts up to setting:MaxPlayers players, relays messages, keeps roster/goodwill/world params, queues messages for offline players (saved to {localappdata}/RimFactions/hub.xml)", "verified_by": "two local instances over TCP" },
+      { "id": "LinkClient",     "where": "every game",          "does": "connects to the hub (from --join or the tab's address field), sends Hello on connect and on game load, reconnects", "verified_by": "two local instances over TCP" },
+      { "id": "SteamTransport", "where": "mod",                 "does": "Steam P2P packets on setting:LinkSteamChannel, accepted from peers; relayed by Steam so no port forwarding", "verified_by": "needs a second Steam account" },
+      { "id": "TcpTransport",   "where": "mod",                 "does": "length-prefixed TCP on setting:LinkTcpPort (loopback, or all interfaces with RIMFACTIONS_LAN=1)", "verified_by": "two local instances" },
+      { "id": "Roster",         "where": "every game",          "does": "friend colonies drawn as world-map markers at their tile; Rim Factions tab lists players, goodwill, online state", "verified_by": "screenshot" },
+      { "id": "Goodwill",       "where": "hub",                 "does": "symmetric goodwill per pair, -100..100, start 0; hostile/ally thresholds; relation changes make news", "verified_by": "gift test" },
+      { "id": "NewsLetters",    "where": "every game",          "does": "News messages become letters in every player's game", "verified_by": "gift test" },
+      { "id": "TripTracker",    "where": "receiver's game",     "does": "map component tracking AI trip pawns until they leave, die or are captured, then sends TripReturn", "verified_by": "AI help trip test" },
+      { "id": "AwayPawns",      "where": "sender's game",       "does": "game component keeping the original colonists as world pawns while away; applies TripReturn (health, gear) and drops them home", "verified_by": "AI help trip test" },
+      { "id": "LiveSession",    "where": "both games",          "does": "host: HostProgrammatically from the solo game, then ConvertToSp when done; joiner: saves home game, connects, reloads home save after", "verified_by": "two local instances over LAN" },
+      { "id": "HostAddressLog", "where": "mod",                 "does": "writes 'Hosting at <steamid64>.steamlobby' (a host name Melty hands joiners) to setting:LogFile when the hub opens, nothing without Steam; writes 'Melty joined: <address>' once the hub welcomes this game", "verified_by": "setup_multiplayer hostLog and joinLog" },
+      { "id": "DropGhosts", "where": "the live session host", "does": "each Hello carries a per-start id; when a friend's game says hello from a new start, the host disconnects that friend's old Steam player in Multiplayer, which otherwise blocks their rejoin forever", "verified_by": "friend restarted to apply host settings and then waited forever; host could not kick the greyed-out player" },
+      { "id": "AutoAcceptFriends", "where": "the live session host", "does": "Multiplayer's Steam join-request popup is skipped for players linked to this planet (matched by Steam id from the roster): they are accepted at once; strangers still get the popup", "verified_by": "friend stuck on Joining when the host never saw the popup" },
+      { "id": "AutoHostConfigs", "where": "joining a live game", "does": "when Multiplayer's join check finds the mod list and files match but mod settings differ, takes Multiplayer's own Fix and restart with the host's settings instead of offering Connect anyway: the joiner restarts once and reconnects; the host's settings last until the next normal start; not repeated if they still differ after that restart", "verified_by": "desync report: Configs match False + Connect anyway desynced 15 ticks in" },
+      { "id": "LiveSettings",   "where": "every game",          "does": "while a live session runs, mod settings that change how the game plays are swapped for the mod's defaults or fixed values (Vanilla Trading Expanded, Drafted Auto-Combat, Melee Animation, Smarter Construction), so every game plays by the same rules; your own settings come back when it ends", "verified_by": "two local instances with the mods loaded" },
+      { "id": "LiveCompat",     "where": "every game",          "does": "Rim Factions' live-play compatibility pack: LiveCompatDef XML per mod (status, player note, simple sync registrations) plus [CompatFor(packageId)] code patches that only run when that mod is loaded; unsafe active mods get a warning before live visits and playing together; the mod checker shows these statuses", "verified_by": "two local instances with the mods loaded" },
+      { "id": "PlanetRules",   "where": "hub > every game",    "does": "the host's settings travel in the roster; while linked as a client those rules are used, otherwise your own; the settings rows marked tunable read from them", "verified_by": "compile + roster round trip (in-game test pending)" },
+      { "id": "DlcCheck",      "where": "every game",          "does": "Hello carries each game's active expansions; gifts, trips, help calls and trade block anything (items, mechs, genes, psylinks/psycasts, titles, mutants) a friend's game lacks, naming the expansion; looks (hair, backstory, tattoos, cosmetic genes) fall back instead; live play needs equal expansion sets; Odyssey colonies off the surface layer get no surface marker", "verified_by": "two local instances, B without Biotech" },
+      { "id": "MeltyTest",     "where": "mod",                 "does": "only while Melty runs a test: reports planet-hosted and colony-linked to the checks file Melty names", "verified_by": "test_release" },
+      { "id": "Launcher",       "where": "RimFactionsLauncher", "does": "keeps the player's mods, adds the stack in order, starts RimWorld; --host opens the hub, --join <address> connects to it (<id>.steamlobby, steam:<id> or tcp:<ip>:<port>)", "verified_by": "launch test" }
+    ]
+  },
+
+  "packaging": {
+    "_columns": ["id", "folder", "packageId", "source", "license", "author", "load_position"],
+    "rows": [
+      { "id": "Prepatcher",   "folder": "Mods/Prepatcher",               "packageId": "zetrith.prepatcher",             "source": "github.com/Zetrith/Prepatcher (master)",           "license": "MIT", "author": "Zetrith",                      "load_position": "before Ludeon.RimWorld" },
+      { "id": "Multiplayer",  "folder": "Mods/Multiplayer",              "packageId": "rwmt.multiplayer",               "source": "github.com/rwmt/Multiplayer continuous (e760d30)", "license": "MIT", "author": "RimWorld Multiplayer Team",     "load_position": "after Core and expansions" },
+      { "id": "MPCompat",     "folder": "Mods/MultiplayerCompatibility", "packageId": "rwmt.multiplayercompatibility",  "source": "github.com/rwmt/Multiplayer-Compatibility (latest)", "license": "MIT", "author": "RimWorld Multiplayer Team",   "load_position": "after Multiplayer" },
+      { "id": "RimFactions",  "folder": "Mods/RimFactions",              "packageId": "melty.rimfactions",              "source": "this project",                                      "license": "MIT", "author": "creator (Melty display name)", "load_position": "after MPCompat" }
+    ]
+  }
+}

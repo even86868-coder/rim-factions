@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <!-- status -->
+  <RF_StatusOff>Not linked to a planet.</RF_StatusOff>
+  <RF_StatusHosting>Hosting this planet. Friends join with your link.</RF_StatusHosting>
+  <RF_StatusConnecting>Connecting to the planet host...</RF_StatusConnecting>
+  <RF_StatusConnected>Linked to the planet.</RF_StatusConnected>
+  <RF_StatusUnreachable>Planet host not reachable. Retrying...</RF_StatusUnreachable>
+  <RF_StatusNoSteam>Steam isn't running, so this Steam link can't be used.</RF_StatusNoSteam>
+  <RF_StatusBadAddress>That address isn't valid.</RF_StatusBadAddress>
+  <RF_StatusFull>That planet is full (4 players).</RF_StatusFull>
+
+  <!-- window -->
+  <RF_HostPlanet>Host a planet</RF_HostPlanet>
+  <RF_JoinAddress>Or join with an address (steam:... or tcp:...):</RF_JoinAddress>
+  <RF_Join>Join</RF_Join>
+  <RF_Disconnect>Leave the planet</RF_Disconnect>
+  <RF_CopyAddress>Copy my join address (send it to friends)</RF_CopyAddress>
+  <RF_AddressCopied>Join address copied. Friends paste it under "Join" in their Rim Factions window.</RF_AddressCopied>
+  <RF_JoinTogether>Join {0}'s colony live (play together)</RF_JoinTogether>
+  <RF_LeaveGameConfirm>This leaves your current game (save first if you want to keep it). Join now?</RF_LeaveGameConfirm>
+  <RF_StartOnPlanet>Start my own colony on this planet</RF_StartOnPlanet>
+  <RF_InviteTogether>Invite friends to this colony (play together)</RF_InviteTogether>
+  <RF_EndVisits>Send all visitors home</RF_EndVisits>
+  <RF_EndSession>End the live session (back to solo)</RF_EndSession>
+  <RF_EndSessionConfirm>End the live session? Friends still in it are disconnected; their colonists stay in your colony. Your game continues as a normal solo save.</RF_EndSessionConfirm>
+  <RF_VisitorAway>Your colonists are visiting {0}. They come home when the visit ends.</RF_VisitorAway>
+  <RF_Players>Players on this planet</RF_Players>
+  <RF_You>(you)</RF_You>
+  <RF_Online>online</RF_Online>
+  <RF_Offline>offline</RF_Offline>
+  <RF_OfflineSuffix>(offline: arrives when they're back)</RF_OfflineSuffix>
+  <RF_Colonists>colonists</RF_Colonists>
+  <RF_GoodwillShort>Goodwill {0} ({1})</RF_GoodwillShort>
+  <RF_Kind_Neutral>neutral</RF_Kind_Neutral>
+  <RF_Kind_Hostile>hostile</RF_Kind_Hostile>
+  <RF_Kind_Ally>allied</RF_Kind_Ally>
+  <RF_UsingFriendPlanet>Using your friend's planet: same seed and settings.</RF_UsingFriendPlanet>
+  <RF_FriendGone>This colony left the planet.</RF_FriendGone>
+  <RF_FriendInspect>Player: {0} ({1})\nColonists: {2}, wealth {3}\nGoodwill with you: {4} ({5})</RF_FriendInspect>
+
+  <!-- join welcome -->
+  <RF_WelcomeTitle>Welcome to {0}'s planet</RF_WelcomeTitle>
+  <RF_WelcomeText>You're linked. Colonies here: {0}</RF_WelcomeText>
+  <RF_WelcomeTogetherHint>Play inside their colony right now, with colonists of your own. You can leave later to found your own colony.</RF_WelcomeTogetherHint>
+  <RF_WelcomeStartHint>Same planet, same seed: your colony appears on their map and theirs on yours.</RF_WelcomeStartHint>
+  <RF_WelcomeKeepPlaying>Keep playing my colony</RF_WelcomeKeepPlaying>
+  <RF_WelcomeLoad>Load one of my own saves</RF_WelcomeLoad>
+  <RF_WelcomeOwnHint>Any of your colonies stays linked: gifts, trips and news work from it too.</RF_WelcomeOwnHint>
+
+  <!-- expansions -->
+  <RF_DlcMissing>{0} doesn't own {1}</RF_DlcMissing>
+  <RF_LiveNeedsSameDlc>Live play needs the same expansions on both sides (differs: {0})</RF_LiveNeedsSameDlc>
+  <RF_LiveNoMechs>mechs can't join live visits; send them as AI help</RF_LiveNoMechs>
+
+  <!-- settings -->
+  <RF_FeatureOff>turned off in this planet's settings</RF_FeatureOff>
+  <RF_SetYourRules>Your planet's rules. When you host, they apply to everyone who joins.</RF_SetYourRules>
+  <RF_SetHostRules>You're on {0}'s planet, so their rules apply right now. Yours apply when you host.</RF_SetHostRules>
+  <RF_SetFeatures>Features</RF_SetFeatures>
+  <RF_SetCallForHelp>Call friends for help</RF_SetCallForHelp>
+  <RF_SetTrade>Trade caravans between colonies</RF_SetTrade>
+  <RF_SetAssaults>Planet-wide assaults</RF_SetAssaults>
+  <RF_SetRaids>Raids between players</RF_SetRaids>
+  <RF_SetLive>Live visits</RF_SetLive>
+  <RF_SetTogether>Playing together on one colony</RF_SetTogether>
+  <RF_SetGoodwill>Goodwill</RF_SetGoodwill>
+  <RF_SetSilverPerGoodwill>Gift value per goodwill point: {0} silver</RF_SetSilverPerGoodwill>
+  <RF_SetGiftCap>Most goodwill from one gift: {0}</RF_SetGiftCap>
+  <RF_SetColonistGift>Goodwill for gifting a colonist: {0}</RF_SetColonistGift>
+  <RF_SetHelpGoodwill>Goodwill for sending help: {0}</RF_SetHelpGoodwill>
+  <RF_SetRaidGoodwill>Goodwill change from a raid: {0}</RF_SetRaidGoodwill>
+  <RF_SetTradeGoodwill>Goodwill for a trade: {0}</RF_SetTradeGoodwill>
+  <RF_SetHostileAt>Colonies turn hostile at: {0}</RF_SetHostileAt>
+  <RF_SetAllyAt>Colonies become allies at: {0}</RF_SetAllyAt>
+  <RF_SetHelping>Helping</RF_SetHelping>
+  <RF_SetHelpStay>Helpers stay up to: {0} hours</RF_SetHelpStay>
+  <RF_SetCallCooldown>Time between calls for help: {0} hours</RF_SetCallCooldown>
+  <RF_SetCallCount>Fighters one click sends: {0}</RF_SetCallCount>
+  <RF_SetAssaultsHeader>Planet-wide assaults</RF_SetAssaultsHeader>
+  <RF_SetAssaultFirst>First assault after: {0} days</RF_SetAssaultFirst>
+  <RF_SetAssaultEvery>Then every: {0} days</RF_SetAssaultEvery>
+  <RF_SetAssaultStrength>Assault strength: {0}%</RF_SetAssaultStrength>
+  <RF_SetAssaultReward>Reward for helping: {0} silver</RF_SetAssaultReward>
+  <RF_SetTogetherHeader>Playing together</RF_SetTogetherHeader>
+  <RF_SetTogetherPawns>Colonists each joining player brings: {0}</RF_SetTogetherPawns>
+  <RF_SetReset>Reset to defaults</RF_SetReset>
+
+  <!-- live compatibility pack -->
+  <RF_LiveUnsafeWarn>Some of your mods can break a live session (desyncs):\n\n{0}\n\nYour own linked games aren't affected. Go live anyway?</RF_LiveUnsafeWarn>
+  <RF_LCStatus_safe>works</RF_LCStatus_safe>
+  <RF_LCStatus_covered>works (patched)</RF_LCStatus_covered>
+  <RF_LCStatus_patched>works (Rim Factions patch)</RF_LCStatus_patched>
+  <RF_LCStatus_caution>works, see note</RF_LCStatus_caution>
+  <RF_LCStatus_unsafe>breaks live play</RF_LCStatus_unsafe>
+
+  <!-- mod list checker -->
+  <RF_CompareMods>Compare mods</RF_CompareMods>
+  <!-- feature:Lobby, feature:PlayerColors, feature:MakeColonists, feature:NameTags -->
+  <RF_LobbyOpen>Start a new game with friends</RF_LobbyOpen>
+  <RF_LobbyShow>Open {0}'s game lobby</RF_LobbyShow>
+  <RF_LobbyTitle>New game with friends</RF_LobbyTitle>
+  <RF_LobbyClosed>The host closed the lobby.</RF_LobbyClosed>
+  <RF_LobbyHostHint>Pick how you start. You set up the world, scenario and storyteller once everyone's ready.</RF_LobbyHostHint>
+  <RF_LobbyGuestHint>{0} is setting up a new game. Pick your color and say you're ready.</RF_LobbyGuestHint>
+  <RF_LobbyMode>How you start:</RF_LobbyMode>
+  <RF_LobbyMode_together>Together: one colony, one map</RF_LobbyMode_together>
+  <RF_LobbyModeDesc_together>The host makes the world and the colony. Everyone joins it live and makes their own colonists, who drop in next to the host's. Anyone can split off later to found their own colony.</RF_LobbyModeDesc_together>
+  <RF_LobbyMode_separate>Separate: own colonies, one planet</RF_LobbyMode_separate>
+  <RF_LobbyModeDesc_separate>The host makes the world. Everyone then founds their own colony on that same planet, with RimWorld's full character creation, and plays their own save, linked by Rim Factions.</RF_LobbyModeDesc_separate>
+  <RF_LobbyPawnsEach>Colonists each: {0}</RF_LobbyPawnsEach>
+  <RF_LobbyRelation>Your factions start out as:</RF_LobbyRelation>
+  <RF_LobbyRelationDesc_Ally>Allies: you can help each other right away. Matters for separate colonies, and once someone splits off.</RF_LobbyRelationDesc_Ally>
+  <RF_LobbyRelationDesc_Neutral>Neutral: earn each other's trust with gifts, trade and help.</RF_LobbyRelationDesc_Neutral>
+  <RF_LobbyRelationDesc_Hostile>Rivals: hostile from the start. Raid each other.</RF_LobbyRelationDesc_Hostile>
+  <RF_LobbyMyColor>Your color (your name tag and map marker):</RF_LobbyMyColor>
+  <RF_LobbyPlayers>Players:</RF_LobbyPlayers>
+  <RF_LobbyHost>host</RF_LobbyHost>
+  <RF_LobbyNotIn>not in the lobby yet</RF_LobbyNotIn>
+  <RF_LobbyReady>ready</RF_LobbyReady>
+  <RF_LobbyNotReady>not ready</RF_LobbyNotReady>
+  <RF_LobbyStart>Start: set up the world</RF_LobbyStart>
+  <RF_LobbyStartNotReady>Not ready yet: {0}. Start anyway?</RF_LobbyStartNotReady>
+  <RF_LobbyImReady>I'm ready</RF_LobbyImReady>
+  <RF_LobbyUnready>Not ready after all</RF_LobbyUnready>
+  <RF_LobbyHostSettingUp>Setting up the world...</RF_LobbyHostSettingUp>
+  <RF_LobbyWaitTogether>{0} is setting up the world and colony. You'll join automatically once it's ready.</RF_LobbyWaitTogether>
+  <RF_LobbyWaitSeparate>{0} is setting up the world. Your own colony's setup opens automatically once their colony has landed.</RF_LobbyWaitSeparate>
+  <RF_AskJoinColony>Join {0}'s colony</RF_AskJoinColony>
+  <RF_AskNewTogether>Start a new game together with {0}</RF_AskNewTogether>
+  <RF_AskedHost>Asked {0}. As soon as they say yes, you're taken there.</RF_AskedHost>
+  <RF_WantJoin>{0} wants to join your colony and play together. Open it for them?</RF_WantJoin>
+  <RF_WantNoColony>{0} wants to join your colony, but you're not in a game. Load your colony, then open it to them from the Rim Factions button (Invite friends to this colony).</RF_WantNoColony>
+  <RF_WantNew>{0} wants to start a new game together. Open the lobby?</RF_WantNew>
+  <RF_LobbyLeaveGame>Setting up the new game leaves your current one. Save it first if you want to keep it. Go to the main menu and set up the new game now?</RF_LobbyLeaveGame>
+  <RF_HostAtPawns>{0} is making their colonists now. Make yours, then you all land together!</RF_HostAtPawns>
+  <RF_PawnPageFriends>Friends landing with you:</RF_PawnPageFriends>
+  <RF_PawnPageReady>{0}: ready</RF_PawnPageReady>
+  <RF_PawnPageMaking>{0}: still making colonists...</RF_PawnPageMaking>
+  <RF_PawnPageStartWithout>Not ready yet: {0}. Start anyway? They'll make colonists when they join.</RF_PawnPageStartWithout>
+  <RF_EarlyMake>Make my colonists now (while the host sets up)</RF_EarlyMake>
+  <RF_EarlyRemake>Remake my colonists</RF_EarlyRemake>
+  <RF_EarlyHave>Your {0} colonists are ready. They drop into the colony when you join.</RF_EarlyHave>
+  <RF_EarlyHint>Making your {0} colonists for the shared colony. Pick any scenario and spot: only your colonists are kept.</RF_EarlyHint>
+  <RF_EarlyReady>You're ready: your {0} colonists went to the host and land with theirs. You'll join as soon as the colony is up.</RF_EarlyReady>
+  <RF_NotYourColonist>{0} is {1}'s colonist.</RF_NotYourColonist>
+  <RF_SetOwnColonists>Shared colony: each player controls only their own colonists</RF_SetOwnColonists>
+  <RF_MakeTitle>Make your colonists</RF_MakeTitle>
+  <RF_MakeHint>These are yours. Randomize until you like them, rename them, then drop them into the colony.</RF_MakeHint>
+  <RF_MakeRandomize>Randomize</RF_MakeRandomize>
+  <RF_MakeMale>Random man</RF_MakeMale>
+  <RF_MakeFemale>Random woman</RF_MakeFemale>
+  <RF_MakeRename>Rename</RF_MakeRename>
+  <RF_MakeDropIn>Drop into the colony</RF_MakeDropIn>
+  <RF_MakeFirst>First name</RF_MakeFirst>
+  <RF_MakeNick>Nickname</RF_MakeNick>
+  <RF_MakeLast>Last name</RF_MakeLast>
+  <RF_SetYouHeader>Just for you</RF_SetYouHeader>
+  <RF_SetNameTags>Show player names over their pawns</RF_SetNameTags>
+  <RF_ApplyingHostConfigs>Your mod settings differ from the host's. Restarting with theirs (just for this session) and reconnecting...</RF_ApplyingHostConfigs>
+  <RF_ModSyncButton>Use {0}'s mod list</RF_ModSyncButton>
+  <RF_ModSyncTitle>Matching {0}'s mods</RF_ModSyncTitle>
+  <RF_ModSyncSame>You already have the same mods in the same order.</RF_ModSyncSame>
+  <RF_ModSyncUnavailable>Can't be downloaded, so left out: {0}</RF_ModSyncUnavailable>
+  <RF_ModSyncNoSteam>Steam isn't running, so the missing mods can't be downloaded. Start Steam, or use the Workshop links in Compare mods.</RF_ModSyncNoSteam>
+  <RF_ModSyncDownloading>Downloading {0} mods from the Steam Workshop:</RF_ModSyncDownloading>
+  <RF_ModSyncStateDone>ready</RF_ModSyncStateDone>
+  <RF_ModSyncStateDown>downloading {0}%</RF_ModSyncStateDown>
+  <RF_ModSyncBackupNote>Your own mod list is saved first. "Restore my own mod list" brings it back.</RF_ModSyncBackupNote>
+  <RF_ModSyncReady>Ready: RimWorld restarts with {0}'s mods, in their load order.</RF_ModSyncReady>
+  <RF_ModSyncSaveFirst>RimWorld closes your current game without saving. Save first if you want to keep it.</RF_ModSyncSaveFirst>
+  <RF_ModSyncRestartNow>Restart with their mods</RF_ModSyncRestartNow>
+  <RF_ModSyncRestore>Restore my own mod list</RF_ModSyncRestore>
+  <RF_ModSyncRestoreConfirm>Switch back to the mod list you had before and restart RimWorld?</RF_ModSyncRestoreConfirm>
+  <RF_CompareModsWith>Compare my mods with {0}'s</RF_CompareModsWith>
+  <RF_ModsTitle>Mods: you and {0}</RF_ModsTitle>
+  <RF_ModsLoading>Asking for their mod list...</RF_ModsLoading>
+  <RF_ModsOffline>{0} is offline: their mod list shows once they're back.</RF_ModsOffline>
+  <RF_ModsMatch>Your mod lists match.</RF_ModsMatch>
+  <RF_ModsSummary>{0} of their mods you don't have, {1} of yours they don't.</RF_ModsSummary>
+  <RF_ModsSoloNote>Your own games stay linked whatever mods you run: gifts, trips, trade and calls for help all work. An item from a mod your friend lacks arrives as silver of the same value, and modded traits or conditions they can't load are left off. Live visits and playing together need the same mods.</RF_ModsSoloNote>
+  <RF_ModsTheyHave>{0} has, you don't ({1})</RF_ModsTheyHave>
+  <RF_ModsYouHave>You have, {0} doesn't ({1})</RF_ModsYouHave>
+  <RF_ModsGet>Get on Workshop</RF_ModsGet>
+  <RF_ModsLocal>not on the Workshop</RF_ModsLocal>
+  <RF_ModsLive>Live play: mods to watch ({0})</RF_ModsLive>
+  <RF_ModsLiveNote>From the RimWorld Multiplayer team's compatibility list. These matter only in live visits and playing together, where mods not made for multiplayer can desync.</RF_ModsLiveNote>
+  <RF_ModStatus_xml>works (no code)</RF_ModStatus_xml>
+  <RF_ModStatus_4>works</RF_ModStatus_4>
+  <RF_ModStatus_3>minor issues</RF_ModStatus_3>
+  <RF_ModStatus_2>major issues</RF_ModStatus_2>
+  <RF_ModStatus_1>doesn't work live</RF_ModStatus_1>
+  <RF_ModStatus_0>not checked yet</RF_ModStatus_0>
+
+  <!-- call for help -->
+  <RF_AlertCallLabel>Call friends for help</RF_AlertCallLabel>
+  <RF_AlertCallDesc>Your colony is under attack. Click to ask every online friend on the planet to send fighters. Their colonists drop in as allies, run by the AI, and go home when it's calm.</RF_AlertCallDesc>
+  <RF_HelpCalled>You called your friends for help.</RF_HelpCalled>
+  <RF_HelpCallLabel>A friend calls for help</RF_HelpCallLabel>
+  <RF_HelpCallText>{0} is under attack and asks for help!\n\nSend your best fighters: they drop into the fight as allies, run by the AI, and come home when it's calm, with whatever wounds and loot they earn.</RF_HelpCallText>
+  <RF_HelpCallSend>Send {0} fighters</RF_HelpCallSend>
+  <RF_NoDefenders>You have no fighters to spare.</RF_NoDefenders>
+
+  <!-- trade caravans -->
+  <RF_TradeWith>Trade with {0}</RF_TradeWith>
+  <RF_TradeAsking>Asking {0} what they have to trade...</RF_TradeAsking>
+  <RF_TradeBusy>{0} can't trade right now (not in their colony). Try again in a moment.</RF_TradeBusy>
+  <RF_TradeNoNegotiator>No one in the caravan can negotiate.</RF_TradeNoNegotiator>
+  <RF_TradeOffline>{0} is offline: trade needs them online.</RF_TradeOffline>
+  <RF_TradeHostile>{0} is hostile to you.</RF_TradeHostile>
+  <RF_TradeDealLabel>Trade with a friend</RF_TradeDealLabel>
+  <RF_TradeDealText>{0}'s caravan traded with your colony.\n\nThey took from your stockpiles:\n{1}\n\nArriving by drop pod: {2}</RF_TradeDealText>
+  <RF_TradeShort>{0} items had already been used or moved, so they couldn't be handed over.</RF_TradeShort>
+
+  <!-- planet events -->
+  <RF_PlanetEventLabel>Planet-wide assault</RF_PlanetEventLabel>
+  <RF_PlanetEventText_mech>Mechanoids are striking every colony on the planet at once! Help a friend's colony (Send to colony, or answer a call for help) and the planet's grateful survivors will reward you.</RF_PlanetEventText_mech>
+  <RF_PlanetEventText_raid>Raiders are hitting every colony on the planet at once! Help a friend's colony (Send to colony, or answer a call for help) and the planet's grateful survivors will reward you.</RF_PlanetEventText_raid>
+  <RF_PlanetRewardLabel>Reward for defending the planet</RF_PlanetRewardLabel>
+  <RF_PlanetRewardText>For helping another colony during the assault, you receive {0} silver by drop pod.</RF_PlanetRewardText>
+
+  <!-- gifts -->
+  <RF_GiftItems>Gift to colony</RF_GiftItems>
+  <RF_GiftItemsDesc>Send the selected items to a friend's colony by drop pod. Gifts raise their goodwill toward you.</RF_GiftItemsDesc>
+  <RF_GiftColonist>Gift colonist</RF_GiftColonist>
+  <RF_GiftColonistDesc>Send {0} to join a friend's colony for good.</RF_GiftColonistDesc>
+  <RF_NoOtherColonies>No other colony on this planet yet.</RF_NoOtherColonies>
+  <RF_ItemStacks>{0} stacks ({1} items)</RF_ItemStacks>
+  <RF_GiftSent>Gift sent to {0}.</RF_GiftSent>
+  <RF_GiftArrivedLabel>Gift from a friend</RF_GiftArrivedLabel>
+  <RF_GiftArrivedText>{0} sent you a gift by drop pod:\n\n{1}</RF_GiftArrivedText>
+
+  <!-- trips -->
+  <RF_SendTrip>Send to colony</RF_SendTrip>
+  <RF_SendTripDesc>Send the selected colonists to a friend's colony: to help or to raid, run by the AI or joining their game live.</RF_SendTripDesc>
+  <RF_TripHelpAI>Help them (AI-controlled; you keep playing)</RF_TripHelpAI>
+  <RF_TripRaidAI>Raid them (AI-controlled; you keep playing)</RF_TripRaidAI>
+  <RF_TripHelpLive>Help them live (pause my colony and join their game)</RF_TripHelpLive>
+  <RF_NeedsOnline>(they must be online)</RF_NeedsOnline>
+  <RF_TripLeft_help>{0} colonists set off to help {1}.</RF_TripLeft_help>
+  <RF_TripLeft_raid>{0} colonists set off to raid {1}.</RF_TripLeft_raid>
+  <RF_TripHereLabel_help>Friends arrive to help</RF_TripHereLabel_help>
+  <RF_TripHereText_help>{0} sent {1} colonists to help you. They stay until things are calm, then head home.</RF_TripHereText_help>
+  <RF_TripHereLabel_raid>Raid from a neighbour</RF_TripHereLabel_raid>
+  <RF_TripHereText_raid>{0} sent {1} colonists to raid you!</RF_TripHereText_raid>
+  <RF_ReturnLabel>Colonists home</RF_ReturnLabel>
+  <RF_ReturnText>Your colonists are back from {0}: {1} arrive by drop pod.</RF_ReturnText>
+  <RF_ReturnDied>{0} died on the trip.</RF_ReturnDied>
+  <RF_ReturnCaptured>{0} was captured by {1}.</RF_ReturnCaptured>
+
+  <!-- live -->
+  <RF_LiveAskTitle>Live visit</RF_LiveAskTitle>
+  <RF_LiveAsk>{0} wants to come and help you live with {1} colonists.\n\nYour game becomes a shared live session until they go home, then returns to normal.</RF_LiveAsk>
+  <RF_Accept>Let them come</RF_Accept>
+  <RF_Decline>Not now</RF_Decline>
+  <RF_LiveAsked>Asked {0} to let you visit live...</RF_LiveAsked>
+  <RF_LiveDeclined>{0} can't take a live visit right now.</RF_LiveDeclined>
+  <RF_HostFailed>Couldn't open the live session.</RF_HostFailed>
+  <RF_ConnectFailed>Couldn't join {0}.</RF_ConnectFailed>
+  <RF_SendVisitorsHome>Send home</RF_SendVisitorsHome>
+  <RF_SendVisitorsHomeDesc>These visitors go back to their own colony with their injuries and gear. When all have gone, both games return to solo.</RF_SendVisitorsHomeDesc>
+
+  <!-- together / split -->
+  <RF_SplitOff>Leave to found own colony</RF_SplitOff>
+  <RF_SplitOffDesc>Your colonists leave this shared colony as a caravan. Your game becomes your own save on the same planet: settle wherever you like.</RF_SplitOffDesc>
+  <RF_SplitConfirm>Leave with your {0} colonists and found your own colony?</RF_SplitConfirm>
+  <RF_SplitDoneLabel>Your own colony</RF_SplitDoneLabel>
+  <RF_SplitDoneText>You've left the shared colony. Your caravan is on the world map: pick a spot and settle. Your old friends are still linked: gifts and trips work as before.</RF_SplitDoneText>
+
+  <!-- news (news sheet) -->
+  <RF_NewsGiftLabel>Gift between colonies</RF_NewsGiftLabel>
+  <RF_NewsGiftText>{0} sent {1} a gift by drop pod: {2}, worth {3}.</RF_NewsGiftText>
+  <RF_NewsColonistLabel>Colonist gifted</RF_NewsColonistLabel>
+  <RF_NewsColonistText>{0} sent {2} to join {1}.</RF_NewsColonistText>
+  <RF_NewsTripLabel>Colonists on the move</RF_NewsTripLabel>
+  <RF_NewsTripText>{0} sent {2} colonists to {1} ({3}).</RF_NewsTripText>
+  <RF_NewsTripText_help>{0} sent {2} colonists to help {1} ({3}).</RF_NewsTripText_help>
+  <RF_NewsTripText_raid>{0} sent {2} colonists to raid {1} ({3})!</RF_NewsTripText_raid>
+  <RF_Mode_ai>AI-controlled</RF_Mode_ai>
+  <RF_Mode_live>live</RF_Mode_live>
+  <RF_NewsReturnLabel>Trip over</RF_NewsReturnLabel>
+  <RF_NewsReturnText>{0}'s colonists left {1}: {2} went home, {3} died, {4} were captured.</RF_NewsReturnText>
+  <RF_NewsRelationLabel>Relations changed</RF_NewsRelationLabel>
+  <RF_NewsRelationText>{0} and {1} are now {2} (were {3}).</RF_NewsRelationText>
+  <RF_NewsTradeLabel>Caravan trade</RF_NewsTradeLabel>
+  <RF_NewsTradeText>{0}'s caravan traded with {1}: {2} items bought, {3} sold.</RF_NewsTradeText>
+  <RF_NewsDefendedLabel>Planet defended</RF_NewsDefendedLabel>
+  <RF_NewsDefendedText>The planet-wide assault is over. Colonies that helped others: {0}. Each earns {1} silver.</RF_NewsDefendedText>
+  <RF_NewsDefendedNobody>The planet-wide assault is over. No colony sent help this time.</RF_NewsDefendedNobody>
+  <RF_NewsJoinedLabel>New colony on the planet</RF_NewsJoinedLabel>
+  <RF_NewsJoinedText>{0} is founding a colony on this planet.</RF_NewsJoinedText>
+  <RF_NewsTogetherLabel>A friend joined the colony</RF_NewsTogetherLabel>
+  <RF_NewsTogetherText>{0} joined the colony live with {1} colonists of their own.</RF_NewsTogetherText>
+  <RF_NewsSplitLabel>A colony splits off</RF_NewsSplitLabel>
+  <RF_NewsSplitText>{0} left the shared colony with {1} colonists to found their own.</RF_NewsSplitText>
+</LanguageData>

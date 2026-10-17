@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Rim Factions live-play compatibility list (system:LiveCompat).
+  Add a newer mod with one LiveCompatDef: packageId, status, a short note for players, and optionally
+  syncMethods / syncFields / syncLambdas ("Namespace.Type:Member", lambdas "Namespace.Type:ParentMethod:ordinal").
+  status: safe | covered | patched | caution | unsafe  (unsafe = players are warned before live play)
+  Mods not listed here use the RimWorld Multiplayer team's own rating.
+-->
+<Defs>
+
+  <!-- Rated "doesn't work" by the Multiplayer team -->
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_DoorMat</defName>
+    <label>Door Mat</label>
+    <packageId>dracoix.doormat.r12a</packageId>
+    <status>unsafe</status>
+    <note>can desync the dirtier colonists get. The "Doormats" mod is a multiplayer-safe alternative.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_CharacterEditor</defName>
+    <label>Character Editor</label>
+    <packageId>void.charactereditor</packageId>
+    <status>unsafe</status>
+    <note>edits aren't shared between players, so any edit desyncs. Edit colonists before or after a live session.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_TerraformRimworld</defName>
+    <label>Terraform Rimworld</label>
+    <packageId>void.terraformrimworld</packageId>
+    <status>unsafe</status>
+    <note>rated as not working in live multiplayer.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_RimConnect</defName>
+    <label>RimConnect</label>
+    <packageId>betterscenes.rimconnect</packageId>
+    <status>unsafe</status>
+    <note>every purchase made on the RimConnect website desyncs a live session.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_SearchAndDestroy</defName>
+    <label>Search and Destroy</label>
+    <packageId>memegoddess.searchanddestroy</packageId>
+    <status>covered</status>
+    <note>patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <!-- Rated "major issues" -->
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_RimThemes</defName>
+    <label>RimThemes</label>
+    <packageId>arandomkiwi.rimthemes</packageId>
+    <status>caution</status>
+    <note>looks only, no desyncs; Ideology prompts can't be cancelled while it's on.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_VanillaHairExpanded</defName>
+    <label>Vanilla Hair Expanded</label>
+    <packageId>vanillaexpanded.vhe</packageId>
+    <status>covered</status>
+    <note>the barber's table is patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_RPGStyleInventory</defName>
+    <label>RPG Style Inventory Revamped</label>
+    <packageId>sandy.rpgstyleinventory.avilmask.revamped</packageId>
+    <status>caution</status>
+    <note>patched by the bundled pack; dropping items from its inventory screen does nothing live, so drop them from the Gear tab.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_RimDarkFramework</defName>
+    <label>RimDark 40k - Framework</label>
+    <packageId>phonicmas.rimdark.frameworkcore</packageId>
+    <status>unsafe</status>
+    <note>colouring and customisation changes aren't shared between players. Make them before or after a live session.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_RimDarkMankindsFinest</defName>
+    <label>RimDark 40k - Mankinds Finest</label>
+    <packageId>phonicmas.rimdark.mankindsfinest</packageId>
+    <status>unsafe</status>
+    <note>several systems (colouring, Legion and Primarch materials) aren't shared between players.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_ProgressionEducation</defName>
+    <label>Progression: Education</label>
+    <packageId>ferny.progressioneducation</packageId>
+    <status>caution</status>
+    <note>no desyncs, but scheduled classes never start during a live session.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_AllowTool</defName>
+    <label>Allow Tool</label>
+    <packageId>unlimitedhugs.allowtool</packageId>
+    <status>covered</status>
+    <note>patched by the bundled pack. Turn its "Storage space alert" setting off to avoid log spam.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <!-- Rated "minor issues" -->
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_DesignatorShapes</defName>
+    <label>Designator Shapes</label>
+    <packageId>merthsoft.designatorshapes</packageId>
+    <status>covered</status>
+    <note>flood fill is patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_Quarry</defName>
+    <label>Quarry</label>
+    <packageId>ogliss.thewhitecrayon.quarry</packageId>
+    <status>covered</status>
+    <note>live sessions copy the host's mod settings to everyone, which keeps quarry resources the same.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_VanillaTraitsExpanded</defName>
+    <label>Vanilla Traits Expanded</label>
+    <packageId>vanillaexpanded.vanillatraitsexpanded</packageId>
+    <status>covered</status>
+    <note>the absent-minded trait is patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_DestroyItem</defName>
+    <label>Destroy Item</label>
+    <packageId>garwel.destroyitem</packageId>
+    <status>covered</status>
+    <note>its order tool is kept in step by Multiplayer, and its settings are copied from the host.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_FortificationsIndustrial</defName>
+    <label>Fortifications - Industrial</label>
+    <packageId>aoba.fortress.industrial</packageId>
+    <status>covered</status>
+    <note>patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_AlphaMemes</defName>
+    <label>Alpha Memes</label>
+    <packageId>sarg.alphamemes</packageId>
+    <status>caution</status>
+    <note>patched by the bundled pack, but some of its new funeral rituals can still desync when started.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_MaxBuyMaxSell</defName>
+    <label>Max Buy, Max Sell</label>
+    <packageId>leoltron.maxbuymaxsell</packageId>
+    <status>safe</status>
+    <note>works live.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_GrimWorldFramework</defName>
+    <label>GrimWorld 40,000 - Framework</label>
+    <packageId>grimworld.framework</packageId>
+    <status>caution</status>
+    <note>works live, except that turning a vox radio's aura off desyncs.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_BloodAnimations</defName>
+    <label>Blood Animations</label>
+    <packageId>fuu.bloodanimations</packageId>
+    <status>caution</status>
+    <note>the host should turn its "Filth Options" setting off; live sessions copy the host's settings to everyone.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_DefensivePositions</defName>
+    <label>Defensive Positions</label>
+    <packageId>unlimitedhugs.defensivepositions</packageId>
+    <status>caution</status>
+    <note>no desyncs, but saved positions aren't shared with joining players.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_HugsLib</defName>
+    <label>HugsLib</label>
+    <packageId>unlimitedhugs.hugslib</packageId>
+    <status>covered</status>
+    <note>patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <!-- Batch 2: flagged by players (Multiplayer's built-in list is older than the bundled compatibility pack) -->
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_IsekaiLeveling</defName>
+    <label>ISEKAI RPG Leveling</label>
+    <packageId>JellyCreative.IsekaiLeveling</packageId>
+    <status>covered</status>
+    <note>stats, skill tree, forge and gizmos are synced by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_IsekaiGuild</defName>
+    <label>Isekai Guild Faction add-on</label>
+    <packageId>Poupun.GuildFactionAddon</packageId>
+    <status>covered</status>
+    <note>patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_IsekaiCreatures</defName>
+    <label>Isekai Creatures add-on</label>
+    <packageId>Poupun.IsekaiCreaturesAddon</packageId>
+    <status>covered</status>
+    <note>patched by the bundled Multiplayer Compatibility pack.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_SmarterConstruction</defName>
+    <label>Smarter Construction</label>
+    <packageId>dhultgren.smarterconstruction</packageId>
+    <status>patched</status>
+    <note>Rim Factions turns its caching off while live (the bundled pack's patch doesn't fit newer versions); solo play keeps it.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_AutoCombat</defName>
+    <label>Drafted Auto-Combat</label>
+    <packageId>RedMattis.AutoCombat</packageId>
+    <status>patched</status>
+    <note>Rim Factions syncs its buttons; its settings are the defaults while live.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_VanillaTrading</defName>
+    <label>Vanilla Trading Expanded</label>
+    <packageId>VanillaExpanded.VanillaTradingExpanded</packageId>
+    <status>patched</status>
+    <note>Rim Factions syncs the bank, stock market and contracts; terminal windows open only for the player who used it; its settings are the defaults while live.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_MeleeAnimation</defName>
+    <label>Melee Animation</label>
+    <packageId>co.uk.epicguru.meleeanimation</packageId>
+    <status>caution</status>
+    <note>animations only while live: executions, grapples, lassos, duels and unique skills are off there (they're fine solo).</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_PerformanceOptimizer</defName>
+    <label>Performance Optimizer</label>
+    <packageId>taranchuk.performanceoptimizer</packageId>
+    <status>caution</status>
+    <note>the bundled Multiplayer Compatibility patch doesn't fit this version yet, so it may desync in live play; fine solo.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_VCEF</defName>
+    <label>Vanilla Cooking Expanded framework</label>
+    <packageId>vanillaexpanded.vcef</packageId>
+    <status>caution</status>
+    <note>the bundled Multiplayer Compatibility patch doesn't fit this version yet, so it may desync in live play; fine solo.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_AutoParking</defName>
+    <label>Vehicle Framework Auto Parking</label>
+    <packageId>rabiosus.vfautoparking</packageId>
+    <status>caution</status>
+    <note>the bundled Multiplayer Compatibility patch doesn't fit this version yet, so it may desync in live play; fine solo.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_Exosuit</defName>
+    <label>Exosuit Framework</label>
+    <packageId>aoba.exosuit.framework</packageId>
+    <status>caution</status>
+    <note>the bundled Multiplayer Compatibility patch doesn't fit this version yet, so it may desync in live play; fine solo.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
+</Defs>

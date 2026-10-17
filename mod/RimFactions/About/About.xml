@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <packageId>melty.rimfactions</packageId>
+  <name>Rim Factions</name>
+  <author>Rim Factions contributors</author>
+  <modVersion>0.11.0</modVersion>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>RimWorld with up to 4 friends on one planet, without constant desyncs: everyone plays their own save, and Rim Factions links the games.
+
+- Friends' colonies on your world map; start new colonies on your friend's planet.
+- Gifts by drop pod: items, silver or colonists.
+- Trips: send colonists to help (AI or live) or raid (AI); survivors come home.
+- Start together on one map, then split off to found your own colony.
+- Goodwill news feed for gifts, help, raids, splits and relation changes.
+
+Bundled with Prepatcher, Multiplayer and Multiplayer Compatibility (MIT, by Zetrith and the RimWorld Multiplayer Team).</description>
+  <modDependencies>
+    <li>
+      <packageId>zetrith.prepatcher</packageId>
+      <displayName>Prepatcher</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2934420800</steamWorkshopUrl>
+      <downloadUrl>https://github.com/Zetrith/Prepatcher</downloadUrl>
+    </li>
+    <li>
+      <packageId>rwmt.Multiplayer</packageId>
+      <displayName>Multiplayer</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2606448745</steamWorkshopUrl>
+      <downloadUrl>https://github.com/rwmt/Multiplayer/releases</downloadUrl>
+    </li>
+    <li>
+      <packageId>rwmt.MultiplayerCompatibility</packageId>
+      <displayName>Multiplayer Compatibility</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/1629973374</steamWorkshopUrl>
+      <downloadUrl>https://github.com/rwmt/Multiplayer-Compatibility/releases</downloadUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>rwmt.Multiplayer</li>
+    <li>rwmt.MultiplayerCompatibility</li>
+  </loadAfter>
+</ModMetaData>

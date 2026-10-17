@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- A friend's colony as it appears in this game: stands in for their visiting colonists and gifted colonists. -->
+  <FactionDef ParentName="OutlanderFactionBase">
+    <defName>RF_RemoteColony</defName>
+    <label>friend's colony</label>
+    <description>Another player's colony on this planet, linked through Rim Factions.</description>
+    <hidden>true</hidden>
+    <requiredCountAtGameStart>0</requiredCountAtGameStart>
+    <maxConfigurableAtWorldCreation>0</maxConfigurableAtWorldCreation>
+    <settlementGenerationWeight>0</settlementGenerationWeight>
+    <canMakeRandomly>false</canMakeRandomly>
+    <canSiege>false</canSiege>
+    <canStageAttacks>false</canStageAttacks>
+    <colorSpectrum>
+      <li>(0.35, 0.65, 0.9)</li>
+      <li>(0.9, 0.75, 0.3)</li>
+    </colorSpectrum>
+  </FactionDef>
+
+  <WorldObjectDef ParentName="StaticWorldObjectBase">
+    <defName>RF_FriendColony</defName>
+    <label>friend's colony</label>
+    <description>Another player's colony on this planet. Gifts and trips reach it through Rim Factions.</description>
+    <worldObjectClass>RimFactions.FriendColony</worldObjectClass>
+    <texture>World/WorldObjects/DefaultSettlement</texture>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/Town</expandingIconTexture>
+    <expandingIconPriority>9</expandingIconPriority>
+    <canHaveMap>false</canHaveMap>
+    <saved>true</saved>
+  </WorldObjectDef>
+
+  <LetterDef ParentName="CustomChoiceLetterBase">
+    <defName>RF_HelpCall</defName>
+    <letterClass>RimFactions.HelpCallLetter</letterClass>
+    <color>(200, 90, 70)</color>
+    <flashInterval>90</flashInterval>
+    <arriveSound>LetterArrive_BadUrgent</arriveSound>
+  </LetterDef>
+
+  <TraderKindDef>
+    <defName>RF_FriendTrader</defName>
+    <label>friend's colony</label>
+    <requestable>false</requestable>
+    <commonality>0</commonality>
+    <stockGenerators>
+      <li Class="RimFactions.StockGenerator_Everything" />
+    </stockGenerators>
+  </TraderKindDef>
+
+  <MainButtonDef>
+    <defName>RF_MainButton</defName>
+    <label>rim factions</label>
+    <description>Your planet's other colonies: players, goodwill, playing together.</description>
+    <workerClass>RimFactions.MainButtonWorker_RimFactions</workerClass>
+    <order>95</order>
+    <minimized>true</minimized>
+    <iconPath>UI/Commands/RF_Trip</iconPath>
+  </MainButtonDef>
+
+</Defs>

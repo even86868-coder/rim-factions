@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <!-- feature:SharedSaves -->
+  <RF_SharedHeader>Shared saves</RF_SharedHeader>
+  <RF_SharedExplain>Games you play together stay caught up: each save goes to your online friends, and to this folder if you set one. Point it at a Google Drive, OneDrive or Dropbox folder all players share, so a friend who was offline still gets your newest save.</RF_SharedExplain>
+  <RF_SharedUse>Use my {0} (makes a "RimFactions Shared" folder there)</RF_SharedUse>
+  <RF_SharedOpen>Open this folder (share it with your friends)</RF_SharedOpen>
+  <RF_SharedFolder>Shared cloud folder:</RF_SharedFolder>
+  <RF_SharedFolderMissing>That folder doesn't exist on this PC.</RF_SharedFolderMissing>
+  <RF_SharedLastSync>Last sync:</RF_SharedLastSync>
+  <RF_SharedStatusIdle>nothing yet.</RF_SharedStatusIdle>
+  <RF_SharedStatusSent>sent "{0}" to your friends.</RF_SharedStatusSent>
+  <RF_SharedStatusCloud>copied "{0}" to the cloud folder.</RF_SharedStatusCloud>
+  <RF_SharedStatusReceived>got "{0}" from {1}.</RF_SharedStatusReceived>
+  <RF_SharedStatusFromCloud>loaded the newer "{0}" from the cloud folder (saved by {1}).</RF_SharedStatusFromCloud>
+  <RF_SharedStatusConflict>{0} played this game separately. Your save was kept; theirs is "{1}".</RF_SharedStatusConflict>
+  <RF_SharedStatusFailed>failed: {0}</RF_SharedStatusFailed>
+  <RF_SharedConflictNote>Played apart, kept side by side: {0}</RF_SharedConflictNote>
+</LanguageData>

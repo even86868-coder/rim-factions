@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>RimFactions</AssemblyName>
+    <RootNamespace>RimFactions</RootNamespace>
+    <Nullable>disable</Nullable>
+    <DebugType>none</DebugType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\..\build\RimFactions</OutputPath>
+    <GameManaged>D:\SteamLibrary\steamapps\common\RimWorld\RimWorldWin64_Data\Managed</GameManaged>
+    <MpDir>$(USERPROFILE)\.melty-tools\dl\mpbeta\x\Multiplayer</MpDir>
+    <PpDir>$(USERPROFILE)\.melty-tools\dl\pp\x\Prepatcher-master\Assemblies</PpDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Xml.Linq" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp"><HintPath>$(GameManaged)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(GameManaged)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(GameManaged)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(GameManaged)\UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(GameManaged)\UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="com.rlabrecque.steamworks.net"><HintPath>$(GameManaged)\com.rlabrecque.steamworks.net.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(PpDir)\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0MultiplayerAPI"><HintPath>$(MpDir)\Assemblies\0MultiplayerAPI.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
