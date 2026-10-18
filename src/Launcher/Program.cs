@@ -27,6 +27,9 @@ static class Program
         try
         {
             string game = Arg(args, "--game"), join = Arg(args, "--join"), saveData = Arg(args, "--savedatafolder");
+            // Melty's test runs: a separate, clean profile (the expansions and the Rim Factions stack only), so a test
+            // checks the mashup itself and never touches the player's own mod list or saves.
+            if (args.Contains("--clean-test") && saveData == null) saveData = Path.Combine(dataDir, "test-profile");
             bool wait = !args.Contains("--no-wait");
             if (game == null || !File.Exists(Path.Combine(game, "RimWorldWin64.exe")))
                 throw new Exception("RimWorld folder not found: " + game);
