@@ -58,6 +58,7 @@ namespace RimFactions.Net
         static string joinAddress;
         static bool helloAcked, announcedJoin;
         static float nextHello, nextReconnect;
+        static float steamRetryUntil;
         static Link instance;
 
         public static void On(string type, Action<Msg> handler) => handlers[type] = handler;
@@ -99,9 +100,49 @@ namespace RimFactions.Net
             HubAddress = SteamTransport.Available ? SteamTransport.MyId + ".steamlobby" : $"tcp:127.0.0.1:{tcp.Port}";
             Status = "RF_StatusHosting";
             if (SteamTransport.Available) HostAddressLog.Write(RFSettings.HostLogPrefix + HubAddress);
-            else HostAddressLog.Write("Steam isn't running: friends can't reach this planet");
+            else
+            {
+                // Steam can come up a little after the mod does: keep trying for a while (joiners wait on this line)
+                HostAddressLog.Write("Steam isn't ready yet: waiting for it before friends can join");
+                steamRetryUntil = Time.realtimeSinceStartup + 90f;
+            }
             HostAddressLog.Write($"Local test address: tcp:127.0.0.1:{tcp.Port}");
             Hub.LocalHello(Hello.Make());
+        }
+
+        /// Hosting started before Steam was ready: open the planet over Steam as soon as it is, and log the address
+        /// Melty hands to joiners. If Steam never comes, a LAN address (when LAN play is on) so friends nearby can join.
+        static void RetrySteamHosting()
+        {
+            if (Time.frameCount % 60 != 0) return;
+            if (SteamTransport.Available)
+            {
+                steamRetryUntil = 0f;
+                steam = steam ?? new SteamTransport();
+                SteamTransport.AcceptAnyone = true;
+                HubAddress = SteamTransport.MyId + ".steamlobby";
+                HostAddressLog.Write(RFSettings.HostLogPrefix + HubAddress);
+                return;
+            }
+            if (Time.realtimeSinceStartup < steamRetryUntil) return;
+            steamRetryUntil = 0f;
+            var lan = LanAddress();
+            if (TcpTransport.LanEnabled && lan != null)
+            {
+                HubAddress = $"tcp:{lan}:{tcp.Port}";
+                HostAddressLog.Write(RFSettings.HostLogPrefix + HubAddress);
+            }
+            else HostAddressLog.Write("Steam isn't running: friends can't reach this planet (start Steam and play again)");
+        }
+
+        static string LanAddress()
+        {
+            try
+            {
+                return System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName())
+                    .FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork && !System.Net.IPAddress.IsLoopback(a))?.ToString();
+            }
+            catch { return null; }
         }
 
         // ---- client ----
@@ -230,6 +271,7 @@ namespace RimFactions.Net
             }
             else if (Role == LinkRole.Hub)
             {
+                if (steamRetryUntil > 0f) RetrySteamHosting();
                 if (Time.realtimeSinceStartup > nextHello) SendHello();
                 Hub.Tick();
             }

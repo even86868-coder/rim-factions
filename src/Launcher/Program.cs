@@ -33,6 +33,11 @@ static class Program
 
             // The mod writes "Hosting at ..." here; start each session with an empty log so stale addresses never show.
             File.WriteAllText(Path.Combine(logDir, "latest.log"), "");
+            // Hosting: the planet's address is this Steam account, known before the game even loads, so joiners can
+            // start connecting at once (the mod writes it again once it is hosting, and retries until it is up).
+            bool hosting = string.IsNullOrWhiteSpace(join) && args.Contains("--host");
+            if (hosting && SteamAccount() is ulong me)
+                File.AppendAllText(Path.Combine(logDir, "latest.log"), $"Hosting at {me}.steamlobby{Environment.NewLine}");
 
             string configDir = saveData != null
                 ? Path.Combine(saveData, "Config")
@@ -64,6 +69,22 @@ static class Program
             Info("ERROR " + e);
             return 1;
         }
+    }
+
+    /// The Steam account signed in to the running Steam client, as a SteamID64; null when Steam isn't running.
+    static ulong? SteamAccount()
+    {
+        try
+        {
+            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess"))
+            {
+                var v = key?.GetValue("ActiveUser");
+                long account = v is int i ? (uint)i : v is long l ? l : 0;
+                if (account <= 0) return null;
+                return 76561197960265728UL + (ulong)account;
+            }
+        }
+        catch { return null; }
     }
 
     static string NormalizeAddress(string a)
