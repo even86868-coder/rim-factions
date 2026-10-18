@@ -80,6 +80,7 @@ namespace RimFactions
                     ("SharedSaves", () => SharedSaves.Init()),
                     ("Colonists", () => EarlyColonistsDone.Init(new Harmony("melty.rimfactions.colonists"))),
                     ("PersonalWork", () => PersonalWork.Init(new Harmony("melty.rimfactions.personalwork"))),
+                    ("SyncCheck", () => SyncCheck.Init(new Harmony("melty.rimfactions.synccheck"))),
                     ("TestHarness", () => TestHarness.Init()),
                     ("MeltyTest", () => MeltyTest.Init()),
                     ("Driver", () => { new GameObject("RimFactions.Driver").AddComponent<Driver>(); }),

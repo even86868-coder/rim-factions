@@ -15,6 +15,7 @@ namespace RimFactions
         {
             if (!Live.InSession || Find.TickManager == null) return;
             int tick = Find.TickManager.TicksGame;
+            if (tick % 250 == 0 && tick != lastMove) RecordMovement(tick);
             if (tick % 2500 != 0 || tick == last) return;
             last = tick;
             var comp = Current.Game?.GetComponent<RFGameComp>();
@@ -36,7 +37,42 @@ namespace RimFactions
                         $"wounds {Hash(wounds.ToString())} doctors {Hash(work.ToString())} forbidden {Hash(forbid.ToString())} colonists {colonists.Count}");
         }
 
-        static int last = -1;
+        static int last = -1, lastMove = -1;
+
+        // ---- movement, kept in memory and written out only when Multiplayer reports a desync ----
+
+        static readonly System.Collections.Generic.Queue<string> recent = new System.Collections.Generic.Queue<string>();
+
+        /// Every 250 ticks: each colonist's cell, job and move speed. Only the last 40 (10,000 ticks) are kept.
+        static void RecordMovement(int tick)
+        {
+            lastMove = tick;
+            var sb = new StringBuilder();
+            foreach (var p in PawnsFinder.AllMaps_FreeColonistsSpawned.OrderBy(p => p.thingIDNumber))
+                sb.Append(p.LabelShort).Append('@').Append(p.Position.x).Append(',').Append(p.Position.z)
+                  .Append(' ').Append(p.CurJobDef?.defName ?? "-").Append(' ')
+                  .Append(p.GetStatValue(StatDefOf.MoveSpeed).ToString("0.00")).Append("; ");
+            recent.Enqueue($"tick {tick}: {sb}");
+            while (recent.Count > 40) recent.Dequeue();
+        }
+
+        /// Multiplayer's "Desynced" window opened: write the recent movement so the host's and friend's logs can be
+        /// compared colonist by colonist.
+        public static void DumpRecent()
+        {
+            if (recent.Count == 0) return;
+            Log.Message("[Rim Factions] movement before the desync (compare with the other player's log):\n" + string.Join("\n", recent));
+            recent.Clear();
+        }
+
+        public static void Init(HarmonyLib.Harmony h)
+        {
+            var window = HarmonyLib.AccessTools.TypeByName("Multiplayer.Client.DesyncedWindow");
+            if (window == null) return;
+            // the window's own constructors only (patching an inherited method would hit every window)
+            foreach (var ctor in HarmonyLib.AccessTools.GetDeclaredConstructors(window))
+                h.Patch(ctor, postfix: new HarmonyLib.HarmonyMethod(typeof(SyncCheck), nameof(DumpRecent)));
+        }
 
         static string Hash(string s)
         {
