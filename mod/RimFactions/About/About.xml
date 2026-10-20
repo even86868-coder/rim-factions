@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <packageId>melty.rimfactions</packageId>
-  <name>Rim Factions</name>
+  <name>Rim Factions - Multiplayer Co-op</name>
   <author>Rim Factions contributors</author>
   <modVersion>0.15.5</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description>Play RimWorld with up to 4 friends: share one colony live, or each run your own colony on the same planet and visit, trade, help and raid each other.
+  <description>Rim Factions - Multiplayer Co-op: play RimWorld multiplayer with up to 4 friends. Share one colony live in co-op, or each run your own colony on the same planet and visit, trade, help and raid each other.
 
 == PLAY TOGETHER IN ONE COLONY ==
 - Lobby on the main menu: the host picks Together (one shared colony) or Separate (your own colonies on one planet), whether you start as allies, neutral or rivals, and how many colonists each player brings. Everyone picks a player color and readies up.

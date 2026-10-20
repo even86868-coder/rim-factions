@@ -1,6 +1,6 @@
-# Rim Factions
+# Rim Factions - Multiplayer Co-op
 
-RimWorld with up to 4 friends on one planet, without the constant desyncs. Each of you plays your own
+RimWorld multiplayer co-op with up to 4 friends on one planet, without the constant desyncs. Each of you plays your own
 colony in your own save; Rim Factions links your games so gifts, colonists, help and raids travel between
 them. When you want to play side by side, a live shared session opens just for that, then everyone goes
 back to their own game.

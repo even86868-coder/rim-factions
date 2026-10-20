@@ -31,7 +31,7 @@ static class Program
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         Application.EnableVisualStyles();
         form = new Form { Text = "Rim Factions Updater", Width = 480, Height = 300, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, StartPosition = FormStartPosition.CenterScreen };
-        var title = new Label { Text = "Rim Factions", Font = new Font(SystemFonts.DefaultFont.FontFamily, 16, FontStyle.Bold), Left = 16, Top = 12, AutoSize = true };
+        var title = new Label { Text = "Rim Factions - Multiplayer Co-op", Font = new Font(SystemFonts.DefaultFont.FontFamily, 16, FontStyle.Bold), Left = 16, Top = 12, AutoSize = true };
         folderLabel = new Label { Left = 16, Top = 50, Width = 440, Height = 32 };
         installedLabel = new Label { Left = 16, Top = 86, Width = 440 };
         latestLabel = new Label { Left = 16, Top = 110, Width = 440 };

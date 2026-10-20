@@ -1,4 +1,4 @@
-Play RimWorld with up to 4 friends: share one colony live, or each run your own colony on the same planet and visit, trade, help and raid each other.
+Rim Factions - Multiplayer Co-op: play RimWorld multiplayer with up to 4 friends. Share one colony live in co-op, or each run your own colony on the same planet and visit, trade, help and raid each other.
 
 == PLAY TOGETHER IN ONE COLONY ==
 - Lobby on the main menu: the host picks Together (one shared colony) or Separate (your own colonies on one planet), whether you start as allies, neutral or rivals, and how many colonists each player brings. Everyone picks a player color and readies up.
