@@ -316,7 +316,7 @@ namespace RimFactions
             if (!Lobby.HostMakingTogether) return;
             var list = Lobby.MemberColonists().ToList();
             if (list.Count == 0) return;
-            var box = new Rect(rect.xMax - 300f, rect.y, 300f, 28f + list.Count * 24f);
+            var box = new Rect(rect.center.x - 150f, rect.y, 300f, 28f + list.Count * 24f);   // top middle, clear of the page's own buttons
             Widgets.DrawBoxSolid(box, new Color(0f, 0f, 0f, 0.6f));
             var r = box.ContractedBy(4f);
             Widgets.Label(new Rect(r.x, r.y, r.width, 24f), "RF_PawnPageFriends".Translate());
@@ -443,7 +443,7 @@ namespace RimFactions
             all = ScenarioLister.AllScenarios().Where(s => s.showInUI).ToList();
             var host = EarlyColonists.HostScenarioDef();
             selected = all.FirstOrDefault(s => host != null && s.name == host.name) ?? host ?? all.FirstOrDefault();
-            if (host != null && !all.Contains(host)) all.Insert(0, host);
+            if (host != null && !all.Any(s => s.name == host.name)) all.Insert(0, host);   // the host's scenario once, even when read from its file
         }
 
         public override void DoWindowContents(Rect inRect)

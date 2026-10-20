@@ -187,7 +187,7 @@ namespace RimFactions
     [HarmonyPatch(typeof(MainTabWindow_Work), nameof(MainTabWindow_Work.DoWindowContents))]
     static class PersonalWorkTab
     {
-        static void Postfix(Rect rect) => PersonalWork.Toggle(new Rect(rect.xMax - 360f, rect.y, 340f, 24f));
+        static void Postfix(Rect rect) => PersonalWork.Toggle(new Rect(rect.xMax - 420f, rect.y, 340f, 24f));
     }
 
     /// feature:PersonalWork — the Work tab's "Help others" column: for each of my colonists, whether it also works on

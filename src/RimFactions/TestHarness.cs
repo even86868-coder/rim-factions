@@ -368,6 +368,40 @@ namespace RimFactions
                 case "window": Find.WindowStack.Add(new RimFactionsWindow()); break;
                 case "closewindows": Find.WindowStack.Windows.ToList().ForEach(w => w.Close(false)); break;
                 case "letters": Find.LetterStack.LettersListForReading.LastOrDefault()?.OpenLetter(); break;
+                // ---- staging showcase screenshots ----
+                case "tab":   // open a main tab by MainButtonDef name (Work, Factions, World...)
+                    Find.MainTabsRoot.SetCurrentTab(DefDatabase<MainButtonDef>.GetNamed(a[1]), false);
+                    break;
+                case "zoom":  // center on the colonists, camera size (smaller = closer)
+                    var cols = Home.mapPawns.FreeColonistsSpawned.ToList();
+                    var mid = cols.Count == 0 ? Home.Center : new IntVec3((int)cols.Average(p => p.Position.x), 0, (int)cols.Average(p => p.Position.z));
+                    Find.CameraDriver.SetRootPosAndSize(mid.ToVector3Shifted(), a.Length > 1 ? float.Parse(a[1], System.Globalization.CultureInfo.InvariantCulture) : 18f);
+                    break;
+                case "gather":  // walk every colonist next to the first one, so name tags show together
+                    var crowd = Home.mapPawns.FreeColonistsSpawned.ToList();
+                    if (crowd.Count > 0)
+                        foreach (var p in crowd.Skip(1))
+                        {
+                            var spot = CellFinder.RandomClosewalkCellNear(crowd[0].Position, Home, 3);
+                            p.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, spot));
+                        }
+                    break;
+                case "inspectother":  // the other player's colonist, with an inspect tab open (Health, Needs, Gear...)
+                    var mine = MpBridge.MyUsername;
+                    var oc2 = Current.Game.GetComponent<RFGameComp>();
+                    var other = Home.mapPawns.FreeColonistsSpawned.FirstOrDefault(p => oc2.OwnerOf(p) != null && oc2.OwnerOf(p) != mine);
+                    if (other == null) { Out("  no other player's colonist"); break; }
+                    Find.Selector.ClearSelection(); Find.Selector.Select(other, false);
+                    if (a.Length > 1) InspectPaneUtility.OpenTab(GenTypes.GetTypeInAnyAssembly("RimWorld.ITab_Pawn_" + a[1]));
+                    Find.CameraDriver.JumpToCurrentMapLoc(other.Position);
+                    break;
+                case "selectbp":  // the newest blueprint or frame, centered
+                    var shownBp = Home.listerThings.ThingsInGroup(ThingRequestGroup.Blueprint).Concat(Home.listerThings.ThingsInGroup(ThingRequestGroup.BuildingFrame)).LastOrDefault();
+                    if (shownBp == null) { Out("  no blueprint"); break; }
+                    Find.Selector.ClearSelection(); Find.Selector.Select(shownBp, false);
+                    Find.CameraDriver.JumpToCurrentMapLoc(shownBp.Position);
+                    break;
+                case "pause": Find.TickManager.Pause(); break;
                 default: Out("unknown command"); break;
             }
         }
