@@ -30,8 +30,10 @@ namespace RimFactions
 
         public static void Init(Harmony h)
         {
+            // the watchdog first, so it runs even if a trace below can't be set up
+            new Thread(Watch) { IsBackground = true, Name = "RimFactions watchdog" }.Start();
             // logged when they start: the steps of loading a save, the game's and Multiplayer's
-            var load = new List<MethodBase>
+            var load = new List<IEnumerable<MethodBase>>
             {
                 M("Verse.Root_Play", "Start"),
                 M("Verse.Profile.MemoryUtility", "ClearAllMapsAndWorld"),
@@ -55,7 +57,7 @@ namespace RimFactions
                 M("Multiplayer.Client.HostUtil", "HostServer"),
             };
             // tracked silently: big pieces of reading a save and of every frame
-            var quiet = new List<MethodBase>
+            var quiet = new List<IEnumerable<MethodBase>>
             {
                 M("Verse.Game", "ExposeSmallComponents"),
                 M("RimWorld.Planet.World", "ExposeData"),
@@ -83,34 +85,43 @@ namespace RimFactions
                     if (t.IsAbstract || t.IsGenericTypeDefinition) continue;
                     try
                     {
-                        if (typeof(MapComponent).IsAssignableFrom(t)) { load.Add(Declared(t, "FinalizeInit")); quiet.Add(Declared(t, "ExposeData")); }
-                        else if (typeof(GameComponent).IsAssignableFrom(t)) { load.Add(Declared(t, "FinalizeInit")); load.Add(Declared(t, "LoadedGame")); quiet.Add(Declared(t, "ExposeData")); }
-                        else if (typeof(WorldComponent).IsAssignableFrom(t)) { load.Add(Declared(t, "FinalizeInit")); quiet.Add(Declared(t, "ExposeData")); }
+                        if (typeof(MapComponent).IsAssignableFrom(t)) { load.Add(One(t, "FinalizeInit")); quiet.Add(One(t, "ExposeData")); }
+                        else if (typeof(GameComponent).IsAssignableFrom(t)) { load.Add(One(t, "FinalizeInit")); load.Add(One(t, "LoadedGame")); quiet.Add(One(t, "ExposeData")); }
+                        else if (typeof(WorldComponent).IsAssignableFrom(t)) { load.Add(One(t, "FinalizeInit")); quiet.Add(One(t, "ExposeData")); }
                     }
                     catch { }
                 }
             }
-            foreach (var m in load) if (m != null) loud.Add(m);
+            foreach (var m in load.SelectMany(x => x)) if (m != null) loud.Add(m);
             int n = 0;
-            foreach (var m in load.Concat(quiet).Where(m => m != null && m.GetMethodBody() != null).Distinct())
+            foreach (var m in load.Concat(quiet).SelectMany(x => x).Where(m => m != null && m.GetMethodBody() != null).Distinct())
                 try { h.Patch(m, prefix: new HarmonyMethod(typeof(LoadTrace), nameof(Start)), finalizer: new HarmonyMethod(typeof(LoadTrace), nameof(End))); n++; }
                 catch { }
 
             currentEvent = AccessTools.Field(typeof(LongEventHandler), "currentEvent");
             eventText = currentEvent == null ? null : AccessTools.Field(currentEvent.FieldType, "eventText");
             toExecuteWhenFinished = AccessTools.Field(typeof(LongEventHandler), "toExecuteWhenFinished");
-            var pre = M("Verse.LongEventHandler", "ExecuteToExecuteWhenFinished");
-            if (pre != null) h.Patch(pre, prefix: new HarmonyMethod(typeof(LoadTrace), nameof(NoteAfterLoad)));
+            foreach (var pre in M("Verse.LongEventHandler", "ExecuteToExecuteWhenFinished"))
+                try { h.Patch(pre, prefix: new HarmonyMethod(typeof(LoadTrace), nameof(NoteAfterLoad))); } catch { }
 
-            new Thread(Watch) { IsBackground = true, Name = "RimFactions watchdog" }.Start();
             Log.Message($"[Rim Factions] load tracing ready ({n} steps, watchdog on)");
         }
 
-        static MethodBase M(string type, string name)
+        /// Every version (overload) of a method; none when the type or method isn't there.
+        static IEnumerable<MethodBase> M(string type, string name)
         {
-            var t = AccessTools.TypeByName(type);
-            return t == null ? null : AccessTools.DeclaredMethod(t, name);
+            try
+            {
+                var t = AccessTools.TypeByName(type);
+                if (t != null)
+                    return t.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                        .Where(m => m.Name == name).Cast<MethodBase>().ToList();
+            }
+            catch { }
+            return Enumerable.Empty<MethodBase>();
         }
+
+        static IEnumerable<MethodBase> One(Type t, string name) { var m = Declared(t, name); return m == null ? Enumerable.Empty<MethodBase>() : new[] { m }; }
 
         static MethodInfo Declared(Type t, string name) => t.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly, null, Type.EmptyTypes, null);
 
