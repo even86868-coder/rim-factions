@@ -1,0 +1,54 @@
+Play RimWorld with up to 4 friends: share one colony live, or each run your own colony on the same planet and visit, trade, help and raid each other.
+
+== PLAY TOGETHER IN ONE COLONY ==
+- Lobby on the main menu: the host picks Together (one shared colony) or Separate (your own colonies on one planet), whether you start as allies, neutral or rivals, and how many colonists each player brings. Everyone picks a player color and readies up.
+- Make your colonists at the same time: when the host reaches the colonist screen, friends get their own colonist screen. Each player picks their own scenario, brings its starting kit, and readies up. Units the scenario needs (like a ghoul) come on top.
+- Prepare Carefully works: prepared colonists, gear, pets and items come along.
+- Everyone lands together in drop pods on the host's map.
+
+== YOUR OWN COLONISTS ==
+- You control only your own colonists. Other players' colonists can be selected and inspected (mood, needs, health, gear), but you can't give them orders. Your doctors and wardens still tend, feed and rescue them.
+- Player name tags over each colonist, and colonist names and bars in each owner's color.
+- Newcomers (joiners, rescued and recruited people) are shared: everyone can control them, and they have their own Shared work tab.
+- The host can hand colonists to a player; anyone can claim shared colonists.
+
+== WORK ON YOUR OWN ==
+- The Work tab shows only your colonists.
+- Help others: per colonist, choose whether they also work on other players' orders (their buildings, mining, bills) or only on yours. Only you decide for your own colonists.
+- Blueprints, frames and designations show who ordered them.
+
+== SEPARATE COLONIES ON ONE PLANET ==
+- Friends' colonies appear on your world map; start your own colony on a friend's planet with the same world.
+- Gifts by drop pod: items, silver or colonists.
+- Trade caravans with a friend's real stockpile.
+- Trips: send colonists to help (AI or live) or to raid (AI). Survivors come home. A second group joins the first as reinforcements.
+- Call for help when you're attacked; friends can send fighters.
+- Goodwill and relations between players, with news letters. Set your stance with any player (friendly, neutral, hostile) from the Players row in the Factions tab; the host can set any pair.
+- Split off: a caravan of your own colonists can leave a shared colony to found its own.
+
+== LIVE SESSIONS ==
+- Live play runs on the Multiplayer mod: join from the menu, friends are accepted automatically, and rejoining after a restart just works.
+- Live helpers can go back to their own colony while their colonists keep helping.
+- The host can load any save (RimWorld or Multiplayer save) for everyone from inside the game; friends rejoin by themselves.
+- Dev mode actions are shared with everyone (host only).
+- Shared cloud saves: keep the newest copy of a shared game in a cloud folder (for example Google Drive), so whoever plays next is caught up.
+
+== SMOOTH JOINING ==
+- One-button mod list sync: download a friend's missing Workshop mods and match their list and load order. Your own list is saved and can be restored.
+- At the main menu you're told if your mods differ from the host's, so the one restart happens at the start, not on every join.
+- The host's mod settings become yours after the first join, so later joins don't restart.
+- Version check between players.
+
+== FEWER DESYNCS, MORE MODS ==
+Rim Factions fixes or patches mods that pull shared games apart:
+- Smarter Construction, RimDark 40k (ranks, armor and weapon customization, rank and gene checkers), Melee Animation, Exosuit Framework, Automatic Parking, Vanilla Trading Expanded, Drafted AutoCombat and Map Preview.
+- Mods with no Multiplayer support of their own get their simple buttons synced automatically.
+- A live-compatibility list warns before going live with mods known to break shared play.
+- Desync diagnostics in the log help track down what split.
+
+== REQUIRES ==
+Prepatcher, Multiplayer and Multiplayer Compatibility (by Zetrith and the RimWorld Multiplayer Team). Subscribe to them too, and load them before Rim Factions. Every player needs the same mods and DLCs.
+
+Not supported yet: RimDark's gene customization window and saved colour presets aren't shared in live games.
+
+Rim Factions is an unofficial, free, community-made mod. It is not made, endorsed or supported by Ludeon Studios.
