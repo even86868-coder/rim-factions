@@ -3,30 +3,75 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using HarmonyLib;
 using RimWorld.Planet;
 using Verse;
 
 namespace RimFactions
 {
-    /// system:LoadTrace — while a save loads, each step (the game's, every map part, game part and world part from
-    /// every mod) is logged when it starts and when it finishes, with how long it took. If loading freezes, the last
-    /// "load step" line without a "done" names the mod that is stuck. Only while loading; nothing is logged in play.
+    /// system:LoadTrace — finds what freezes the game. Each load step (the game's, Multiplayer's, and every mod's map,
+    /// game and world parts) and each part of a frame is tracked while it runs. Load steps are logged when they start
+    /// and, if slow, when they finish. A watchdog thread notices when the game stops drawing frames for 15 seconds and
+    /// logs which steps it is inside, the loading screen's task, and what is queued to run after loading. Frame parts
+    /// are never logged unless the game is stuck.
     public static class LoadTrace
     {
-        static readonly Dictionary<MethodBase, Stopwatch> running = new Dictionary<MethodBase, Stopwatch>();
+        struct Step { public MethodBase method; public long started; }
 
-        static bool Loading => Current.ProgramState != ProgramState.Playing;
+        static readonly List<Step> inside = new List<Step>();
+        static readonly HashSet<MethodBase> loud = new HashSet<MethodBase>();
+        static readonly Stopwatch clock = Stopwatch.StartNew();
+        static long lastFrame = -1;
+        public static volatile string driverPart;
+        static string pendingAfterLoad = "";
+
+        static FieldInfo currentEvent, eventText, toExecuteWhenFinished;
 
         public static void Init(Harmony h)
         {
-            var targets = new List<MethodBase>
+            // logged when they start: the steps of loading a save, the game's and Multiplayer's
+            var load = new List<MethodBase>
             {
-                AccessTools.Method(typeof(Game), nameof(Game.LoadGame)),
-                AccessTools.Method(typeof(Game), nameof(Game.FinalizeInit)),
-                AccessTools.Method(typeof(Map), nameof(Map.FinalizeLoading)),
-                AccessTools.Method(typeof(Map), nameof(Map.FinalizeInit)),
-                AccessTools.Method(typeof(World), nameof(World.FinalizeInit)),
+                M("Verse.Root_Play", "Start"),
+                M("Verse.Profile.MemoryUtility", "ClearAllMapsAndWorld"),
+                M("Verse.SavedGameLoaderNow", "LoadGameFromSaveFileNow"),
+                M("Verse.ScribeLoader", "InitLoading"),
+                M("Verse.ScribeLoader", "FinalizeLoading"),
+                M("Verse.CrossRefHandler", "ResolveAllCrossReferences"),
+                M("Verse.PostLoadIniter", "DoAllPostLoadInits"),
+                M("Verse.Game", "LoadGame"),
+                M("Verse.Game", "FinalizeInit"),
+                M("Verse.Map", "FinalizeLoading"),
+                M("Verse.Map", "FinalizeInit"),
+                M("RimWorld.Planet.World", "FinalizeInit"),
+                M("Multiplayer.Client.Replay", "LoadReplay"),
+                M("Multiplayer.Client.Replay", "LoadInfo"),
+                M("Multiplayer.Client.Replay", "LoadGameData"),
+                M("Multiplayer.Client.Saving.Loader", "ReloadGame"),
+                M("Multiplayer.Client.SaveLoad", "LoadInMainThread"),
+                M("Multiplayer.Client.SaveLoad", "ClearState"),
+                M("Multiplayer.Client.TickPatch", "SetSimulation"),
+                M("Multiplayer.Client.HostUtil", "HostServer"),
+            };
+            // tracked silently: big pieces of reading a save and of every frame
+            var quiet = new List<MethodBase>
+            {
+                M("Verse.Game", "ExposeSmallComponents"),
+                M("RimWorld.Planet.World", "ExposeData"),
+                M("RimWorld.Planet.World", "ExposeComponents"),
+                M("Verse.Map", "ExposeData"),
+                M("Verse.Map", "ExposeComponents"),
+                M("Verse.Root_Play", "Update"),
+                M("Verse.Root_Entry", "Update"),
+                M("Verse.LongEventHandler", "LongEventsUpdate"),
+                M("Verse.LongEventHandler", "ExecuteToExecuteWhenFinished"),
+                M("Verse.TickManager", "TickManagerUpdate"),
+                M("Verse.TickManager", "DoSingleTick"),
+                M("Verse.MapInterface", "MapInterfaceUpdate"),
+                M("Verse.UIRoot_Play", "UIRootOnGUI"),
+                M("Verse.WindowStack", "WindowStackOnGUI"),
+                M("Verse.WorldInterface", "WorldInterfaceUpdate"),
             };
             // every mod's map, game and world parts
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -38,40 +83,99 @@ namespace RimFactions
                     if (t.IsAbstract || t.IsGenericTypeDefinition) continue;
                     try
                     {
-                        if (typeof(MapComponent).IsAssignableFrom(t)) targets.Add(Declared(t, "FinalizeInit"));
-                        else if (typeof(GameComponent).IsAssignableFrom(t)) { targets.Add(Declared(t, "FinalizeInit")); targets.Add(Declared(t, "LoadedGame")); }
-                        else if (typeof(WorldComponent).IsAssignableFrom(t)) targets.Add(Declared(t, "FinalizeInit"));
+                        if (typeof(MapComponent).IsAssignableFrom(t)) { load.Add(Declared(t, "FinalizeInit")); quiet.Add(Declared(t, "ExposeData")); }
+                        else if (typeof(GameComponent).IsAssignableFrom(t)) { load.Add(Declared(t, "FinalizeInit")); load.Add(Declared(t, "LoadedGame")); quiet.Add(Declared(t, "ExposeData")); }
+                        else if (typeof(WorldComponent).IsAssignableFrom(t)) { load.Add(Declared(t, "FinalizeInit")); quiet.Add(Declared(t, "ExposeData")); }
                     }
                     catch { }
                 }
             }
+            foreach (var m in load) if (m != null) loud.Add(m);
             int n = 0;
-            foreach (var m in targets.Where(m => m != null && m.GetMethodBody() != null).Distinct())
+            foreach (var m in load.Concat(quiet).Where(m => m != null && m.GetMethodBody() != null).Distinct())
                 try { h.Patch(m, prefix: new HarmonyMethod(typeof(LoadTrace), nameof(Start)), finalizer: new HarmonyMethod(typeof(LoadTrace), nameof(End))); n++; }
                 catch { }
-            Log.Message($"[Rim Factions] load tracing ready ({n} load steps)");
+
+            currentEvent = AccessTools.Field(typeof(LongEventHandler), "currentEvent");
+            eventText = currentEvent == null ? null : AccessTools.Field(currentEvent.FieldType, "eventText");
+            toExecuteWhenFinished = AccessTools.Field(typeof(LongEventHandler), "toExecuteWhenFinished");
+            var pre = M("Verse.LongEventHandler", "ExecuteToExecuteWhenFinished");
+            if (pre != null) h.Patch(pre, prefix: new HarmonyMethod(typeof(LoadTrace), nameof(NoteAfterLoad)));
+
+            new Thread(Watch) { IsBackground = true, Name = "RimFactions watchdog" }.Start();
+            Log.Message($"[Rim Factions] load tracing ready ({n} steps, watchdog on)");
+        }
+
+        static MethodBase M(string type, string name)
+        {
+            var t = AccessTools.TypeByName(type);
+            return t == null ? null : AccessTools.DeclaredMethod(t, name);
         }
 
         static MethodInfo Declared(Type t, string name) => t.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly, null, Type.EmptyTypes, null);
 
+        /// Called by the mod's per-frame driver: the game is drawing frames.
+        public static void Frame() => Interlocked.Exchange(ref lastFrame, clock.ElapsedMilliseconds);
+
         static void Start(MethodBase __originalMethod)
         {
-            if (!Loading) return;
-            Log.Message($"[Rim Factions] load step: {Name(__originalMethod)}");
-            running[__originalMethod] = Stopwatch.StartNew();
+            if (loud.Contains(__originalMethod)) Log.Message($"[Rim Factions] load step: {Name(__originalMethod)}");
+            lock (inside) inside.Add(new Step { method = __originalMethod, started = clock.ElapsedMilliseconds });
         }
 
         static Exception End(MethodBase __originalMethod, Exception __exception)
         {
-            if (running.TryGetValue(__originalMethod, out var sw))
-            {
-                running.Remove(__originalMethod);
-                if (sw.ElapsedMilliseconds >= 200 || __exception != null)
-                    Log.Message($"[Rim Factions] load step done: {Name(__originalMethod)} in {sw.ElapsedMilliseconds} ms{(__exception != null ? " (failed: " + __exception.Message + ")" : "")}");
-            }
+            long took = -1;
+            lock (inside)
+                for (int i = inside.Count - 1; i >= 0; i--)
+                    if (inside[i].method == __originalMethod) { took = clock.ElapsedMilliseconds - inside[i].started; inside.RemoveRange(i, inside.Count - i); break; }
+            if (loud.Contains(__originalMethod) && (took >= 200 || __exception != null))
+                Log.Message($"[Rim Factions] load step done: {Name(__originalMethod)} in {took} ms{(__exception != null ? " (failed: " + __exception.Message + ")" : "")}");
             return __exception;
         }
 
-        static string Name(MethodBase m) => $"{m.DeclaringType?.Assembly.GetName().Name}: {m.DeclaringType?.FullName}.{m.Name}";
+        static void NoteAfterLoad()
+        {
+            try
+            {
+                if (toExecuteWhenFinished?.GetValue(null) is List<Action> list && list.Count > 0)
+                    pendingAfterLoad = string.Join(", ", list.Select(a => Name(a.Method)).Distinct().Take(30));
+            }
+            catch { }
+        }
+
+        static void Watch()
+        {
+            long reportedFor = -1, lastReport = 0;
+            while (true)
+            {
+                Thread.Sleep(2000);
+                try
+                {
+                    long last = Interlocked.Read(ref lastFrame);
+                    if (last < 0) continue;
+                    long now = clock.ElapsedMilliseconds, stuck = now - last;
+                    if (stuck < 15000) { if (reportedFor == last) Log.Message($"[Rim Factions] watchdog: the game is moving again"); reportedFor = -1; continue; }
+                    if (reportedFor == last && now - lastReport < 30000) continue;
+                    reportedFor = last; lastReport = now;
+                    Log.Warning("[Rim Factions] watchdog: " + Report(now, stuck));
+                }
+                catch (Exception e) { Log.Warning("[Rim Factions] watchdog: " + e.Message); }
+            }
+        }
+
+        static string Report(long now, long stuck)
+        {
+            string steps;
+            lock (inside) steps = inside.Count == 0 ? "none of the tracked steps" : string.Join(" > ", inside.Select(s => $"{Name(s.method)} ({(now - s.started) / 1000}s)"));
+            string task = null;
+            try { var ev = currentEvent?.GetValue(null); task = ev == null ? null : eventText?.GetValue(ev) as string; } catch { }
+            string ticks = null;
+            try { ticks = Current.Game?.tickManager?.TicksGame.ToString(); } catch { }
+            return $"no frame for {stuck / 1000}s. State {Current.ProgramState}, game tick {ticks ?? "-"}, loading task \"{task ?? "-"}\"" +
+                   $", Rim Factions part {driverPart ?? "-"}. Inside: {steps}. Last queued after loading: {(pendingAfterLoad.Length > 0 ? pendingAfterLoad : "-")}";
+        }
+
+        static string Name(MethodBase m) => m == null ? "?" : $"{m.DeclaringType?.Assembly.GetName().Name}: {m.DeclaringType?.FullName}.{m.Name}";
     }
 }

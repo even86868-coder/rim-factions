@@ -102,6 +102,7 @@ namespace RimFactions
 
         static void Run(int part, Action step)
         {
+            LoadTrace.driverPart = step.Method.DeclaringType?.Name + "." + step.Method.Name;
             try { step(); }
             catch (Exception e)
             {
@@ -112,8 +113,10 @@ namespace RimFactions
         void Update()
         {
             // each part on its own, so one failing doesn't stop the others; each error is logged once, in full
+            LoadTrace.Frame();
             Run(0, Compat.LiveSettings.Update); Run(1, Live.Update); Run(2, ReloadSave.Update); Run(3, ModSync.MenuCheck);
             Run(4, Lobby.Update); Run(5, Starters.Update); Run(6, JoinWelcome.Tick); Run(7, Trade.Tick); Run(8, DesyncReport.Update);
+            LoadTrace.driverPart = null;
         }
     }
 
