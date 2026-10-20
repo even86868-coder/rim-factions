@@ -113,8 +113,12 @@ static class Program
                 var from = Path.Combine(unpacked, "Mods", name);
                 if (!Directory.Exists(from)) continue;
                 var to = Path.Combine(mods, name);
+                // a Workshop ID the creator's own copy carries (RimWorld's uploader writes it) survives the update
+                var idFile = Path.Combine(to, "About", "PublishedFileId.txt");
+                var keepId = File.Exists(idFile) ? File.ReadAllText(idFile) : null;
                 if (Directory.Exists(to)) Directory.Delete(to, true);
                 CopyDir(from, to);
+                if (keepId != null) { Directory.CreateDirectory(Path.GetDirectoryName(idFile)); File.WriteAllText(idFile, keepId); }
             }
             statusLabel.Text = "Installed " + (InstalledVersion() ?? "?") + ". Start RimWorld from Steam or with the button.";
         }

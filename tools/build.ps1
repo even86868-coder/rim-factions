@@ -1,4 +1,4 @@
-# Builds Rim Factions and assembles build/package (the release layout) and build/RimFactions-<version>.zip.
+﻿# Builds Rim Factions and assembles build/package (the release layout) and build/RimFactions-<version>.zip.
 param([string]$Version = "0.15.5")
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
@@ -45,6 +45,8 @@ $ws = "$root\build\workshop\RimFactions"
 if (Test-Path "$root\build\workshop") { Remove-Item -Recurse -Force "$root\build\workshop" }
 Copy-Item -Recurse "$pkg\Mods\RimFactions" $ws
 Copy-Item "$root\README.md", "$root\CREDITS.md" $ws
+# The Workshop item this folder updates (only the upload copy carries it; players' copies never do).
+if (Test-Path "$root\tools\workshop-id.txt") { Copy-Item "$root\tools\workshop-id.txt" "$ws\About\PublishedFileId.txt" }
 
 $zip = "$root\build\RimFactions-$Version.zip"
 if (Test-Path $zip) { Remove-Item $zip }
