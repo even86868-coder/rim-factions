@@ -126,10 +126,44 @@ namespace RimFactions
         static MethodInfo Declared(Type t, string name) => t.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly, null, Type.EmptyTypes, null);
 
         /// Called by the mod's per-frame driver: the game is drawing frames.
-        public static void Frame() { FreezeProbe.NoteMainThread(); Interlocked.Exchange(ref lastFrame, clock.ElapsedMilliseconds); }
+        public static void Frame()
+        {
+            FreezeProbe.NoteMainThread();
+            Interlocked.Exchange(ref lastFrame, clock.ElapsedMilliseconds);
+            if (savedTraces != null && Current.ProgramState == ProgramState.Playing && !LongEventHandler.AnyEventNowOrWaiting) StackTracesBack();
+        }
+
+        // Unity can loop forever while building the stack trace of a message logged in the middle of loading a save
+        // (seen loading Multiplayer saves with many mods). While a save loads, messages are logged without one.
+        static Dictionary<UnityEngine.LogType, UnityEngine.StackTraceLogType> savedTraces;
+
+        static void NoStackTraces()
+        {
+            if (savedTraces != null) return;
+            try
+            {
+                savedTraces = new Dictionary<UnityEngine.LogType, UnityEngine.StackTraceLogType>();
+                foreach (UnityEngine.LogType lt in Enum.GetValues(typeof(UnityEngine.LogType)))
+                {
+                    savedTraces[lt] = UnityEngine.Application.GetStackTraceLogType(lt);
+                    UnityEngine.Application.SetStackTraceLogType(lt, UnityEngine.StackTraceLogType.None);
+                }
+                Log.Message("[Rim Factions] loading: messages are logged without stack traces until the game is ready");
+            }
+            catch (Exception e) { Log.Warning("[Rim Factions] stack traces: " + e.Message); }
+        }
+
+        static void StackTracesBack()
+        {
+            var saved = savedTraces;
+            savedTraces = null;
+            try { foreach (var kv in saved) UnityEngine.Application.SetStackTraceLogType(kv.Key, kv.Value); } catch { }
+            Log.Message("[Rim Factions] game ready: stack traces back on");
+        }
 
         static void Start(MethodBase __originalMethod)
         {
+            if (loud.Contains(__originalMethod) && savedTraces == null && UnityEngine.Application.isPlaying && FreezeProbe.OnMainThread) NoStackTraces();
             if (loud.Contains(__originalMethod)) Log.Message($"[Rim Factions] load step: {Name(__originalMethod)}");
             lock (inside) inside.Add(new Step { method = __originalMethod, started = clock.ElapsedMilliseconds });
         }

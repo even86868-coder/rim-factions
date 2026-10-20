@@ -20,6 +20,11 @@ namespace RimFactions
             if (mainThreadId == 0) try { mainThreadId = GetCurrentThreadId(); } catch { }
         }
 
+        public static bool OnMainThread
+        {
+            get { try { return mainThreadId != 0 && GetCurrentThreadId() == mainThreadId; } catch { return false; } }
+        }
+
         public static string Sample(int times = 6, int gapMs = 150)
         {
             if (mainThreadId == 0) return "main thread unknown";
