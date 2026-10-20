@@ -198,6 +198,14 @@
 
 Switch to {0}'s mod list now? RimWorld restarts once, and after that joining is quick. Your own list is saved and can be restored.</RF_ModSyncPrompt>
   <RF_ModSyncTurnsOff>These of your mods would be switched off: {0}. Don't load a save that uses them without them: their buildings, vehicles and pawns would be lost from it.</RF_ModSyncTurnsOff>
+  <RF_DesyncSendTitle>Send the desync report?</RF_DesyncSendTitle>
+  <RF_DesyncSendAsk>Your games went out of sync. Rim Factions can send this desync report to the mod's author so the cause can be found and fixed.
+
+It contains your Multiplayer username, the game's log (with your mod list and file paths) and what the game was doing when it split. It goes to the author's private Discord channel and is used only to fix desyncs.</RF_DesyncSendAsk>
+  <RF_DesyncSend>Send report</RF_DesyncSend>
+  <RF_DesyncSending>Sending the desync report...</RF_DesyncSending>
+  <RF_DesyncSent>Desync report sent. Thank you!</RF_DesyncSent>
+  <RF_DesyncSendFailed>Couldn't send the desync report (no connection?). It's still in your MpDesyncs folder.</RF_DesyncSendFailed>
   <RF_NotNow>Not now</RF_NotNow>
   <RF_ModSyncOrderOnly>same mods, different order</RF_ModSyncOrderOnly>
   <RF_ModSyncTitle>Matching {0}'s mods</RF_ModSyncTitle>
