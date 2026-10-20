@@ -126,7 +126,7 @@ namespace RimFactions
         static MethodInfo Declared(Type t, string name) => t.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly, null, Type.EmptyTypes, null);
 
         /// Called by the mod's per-frame driver: the game is drawing frames.
-        public static void Frame() => Interlocked.Exchange(ref lastFrame, clock.ElapsedMilliseconds);
+        public static void Frame() { FreezeProbe.NoteMainThread(); Interlocked.Exchange(ref lastFrame, clock.ElapsedMilliseconds); }
 
         static void Start(MethodBase __originalMethod)
         {
@@ -169,7 +169,7 @@ namespace RimFactions
                     if (stuck < 15000) { if (reportedFor == last) Log.Message($"[Rim Factions] watchdog: the game is moving again"); reportedFor = -1; continue; }
                     if (reportedFor == last && now - lastReport < 30000) continue;
                     reportedFor = last; lastReport = now;
-                    Log.Warning("[Rim Factions] watchdog: " + Report(now, stuck));
+                    Log.Warning("[Rim Factions] watchdog: " + Report(now, stuck) + "\n  " + FreezeProbe.Sample());
                 }
                 catch (Exception e) { Log.Warning("[Rim Factions] watchdog: " + e.Message); }
             }
