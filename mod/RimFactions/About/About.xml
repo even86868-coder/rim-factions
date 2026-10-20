@@ -15,7 +15,7 @@
 - Start together on one map, then split off to found your own colony.
 - Goodwill news feed for gifts, help, raids, splits and relation changes.
 
-Bundled with Prepatcher, Multiplayer and Multiplayer Compatibility (MIT, by Zetrith and the RimWorld Multiplayer Team).</description>
+Needs Prepatcher, Multiplayer and Multiplayer Compatibility (by Zetrith and the RimWorld Multiplayer Team): subscribe to them too, and load them before Rim Factions.</description>
   <modDependencies>
     <li>
       <packageId>zetrith.prepatcher</packageId>
