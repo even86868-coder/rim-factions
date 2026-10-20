@@ -402,6 +402,19 @@ namespace RimFactions
                     Find.CameraDriver.JumpToCurrentMapLoc(shownBp.Position);
                     break;
                 case "pause": Find.TickManager.Pause(); break;
+                case "scrolltabs":  // scroll the open main tab (Factions...) to the bottom
+                    var tabWin = Find.WindowStack.Windows.OfType<MainTabWindow>().FirstOrDefault();
+                    var sf = tabWin == null ? null : HarmonyLib.AccessTools.GetDeclaredFields(tabWin.GetType()).FirstOrDefault(f => f.FieldType == typeof(Vector2));
+                    if (sf != null) sf.SetValue(tabWin, new Vector2(0f, 99999f));
+                    else Out("  no scroll field");
+                    break;
+                case "lookvisitors":  // center on a friend's raiders or helpers on this map
+                    var visitors = Home.GetComponent<TripTracker>()?.trips.SelectMany(t => t.pawns).Where(p => p != null && p.Spawned).ToList();
+                    if (visitors == null || visitors.Count == 0) { Out("  no visitors"); break; }
+                    var vmid = new IntVec3((int)visitors.Average(p => p.Position.x), 0, (int)visitors.Average(p => p.Position.z));
+                    Find.CameraDriver.SetRootPosAndSize(vmid.ToVector3Shifted(), a.Length > 1 ? float.Parse(a[1], System.Globalization.CultureInfo.InvariantCulture) : 14f);
+                    Find.Selector.ClearSelection(); Find.Selector.Select(visitors[0], false);
+                    break;
                 default: Out("unknown command"); break;
             }
         }

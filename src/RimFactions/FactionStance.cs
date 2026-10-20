@@ -9,30 +9,47 @@ using Verse;
 
 namespace RimFactions
 {
-    /// feature:FactionStance — in RimWorld's Factions tab, each other player's colony has a button to set how my colony
-    /// stands with theirs: friendly, neutral or hostile. It goes through the planet's host, so both players' games,
-    /// the player list and everyone's news agree. (The host can set any pair: feature:RelationCheat.)
-    [HarmonyPatch(typeof(FactionUIUtility), "DrawFactionRow")]
+    /// feature:FactionStance — a "Players" row at the top of RimWorld's Factions tab: one button per other player,
+    /// showing how my colony stands with theirs, to set it to friendly, neutral or hostile. It goes through the
+    /// planet's host, so both players' games, the player list and everyone's news agree. (Friends' colonies are hidden
+    /// factions, which the tab's own list never shows, so the row sits above it. The host can set any pair:
+    /// feature:RelationCheat.)
+    [HarmonyPatch(typeof(FactionUIUtility), nameof(FactionUIUtility.DoWindowContents))]
     static class FactionStance
     {
-        static void Postfix(Faction faction, float rowY, Rect fillRect, float __result)
+        static void Postfix(Rect fillRect)
         {
-            if (faction == null || faction.def?.defName != "RF_RemoteColony" || !Link.Connected) return;
-            var comp = Current.Game?.GetComponent<RFGameComp>();
-            var friendId = comp?.remoteFactions.FirstOrDefault(kv => kv.Value == faction).Key;
-            if (friendId == null || friendId == Link.MyId) return;
-            var r = new Rect(fillRect.xMax - 150f, rowY + Mathf.Max(0f, (__result - 28f) / 2f), 140f, 28f);
-            var now = Roster.Kind(Link.MyId, friendId);
-            if (!Widgets.ButtonText(r, "RF_StanceButton".Translate(("RF_Kind_" + now).Translate()))) return;
+            if (!Link.Connected) return;
+            var others = Roster.Players.Where(p => !p.IsMe).ToList();
+            if (others.Count == 0) return;
+            var row = new Rect(fillRect.x + 10f, fillRect.y + 6f, fillRect.width - 20f, 30f);
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Widgets.Label(new Rect(row.x, row.y, 80f, row.height), "RF_StancePlayers".Translate());
+            Text.Anchor = TextAnchor.UpperLeft;
+            float x = row.x + 84f;
+            foreach (var f in others)
+            {
+                var r = new Rect(x, row.y, 220f, row.height);
+                if (r.xMax > row.xMax) break;
+                var now = Roster.Kind(Link.MyId, f.id);
+                Widgets.DrawBoxSolid(new Rect(r.x, r.y + 4f, 5f, r.height - 8f), f.color);
+                if (Widgets.ButtonText(new Rect(r.x + 8f, r.y, r.width - 8f, r.height), $"{f.Label}: {("RF_Kind_" + now).Translate()}"))
+                    Find.WindowStack.Add(new FloatMenu(Options(f, now)));
+                x = r.xMax + 8f;
+            }
+        }
+
+        static List<FloatMenuOption> Options(Friend f, string now)
+        {
             var opts = new List<FloatMenuOption>();
             foreach (var kind in new[] { "Ally", "Neutral", "Hostile" })
             {
                 var k = kind;
-                opts.Add(new FloatMenuOption(("RF_Stance_" + kind).Translate(Roster.NameOf(friendId)), () =>
-                    Link.Send(new Msg("SetRelation", "hub", new XElement("a", Link.MyId), new XElement("b", friendId), new XElement("kind", k))))
+                opts.Add(new FloatMenuOption(("RF_Stance_" + kind).Translate(f.Label), () =>
+                    Link.Send(new Msg("SetRelation", "hub", new XElement("a", Link.MyId), new XElement("b", f.id), new XElement("kind", k))))
                 { Disabled = kind == now });
             }
-            Find.WindowStack.Add(new FloatMenu(opts));
+            return opts;
         }
     }
 }

@@ -21,16 +21,26 @@ for ($i = 0; $i -lt 10; $i++) {
   [RFWin]::GetWindowRect($h, [ref]$r) | Out-Null
   if (($r.R - $r.L) -gt 800) { break }
 }
-Start-Sleep -Milliseconds 800
-$w = $r.R - $r.L; $hgt = $r.B - $r.T
-$bmp = New-Object Drawing.Bitmap $w, $hgt
-$g = [Drawing.Graphics]::FromImage($bmp)
-$hdc = $g.GetHdc()
-$ok = [RFWin]::PrintWindow($h, $hdc, 2)
-$g.ReleaseHdc($hdc)
-if (-not $ok) { $g.CopyFromScreen($r.L, $r.T, 0, 0, $bmp.Size) }
-$g.Dispose()
+# A capture taken before the game redraws comes out blank: check a few pixels and try again (up to 5 times).
+for ($try = 0; $try -lt 5; $try++) {
+  Start-Sleep -Milliseconds 800
+  $w = $r.R - $r.L; $hgt = $r.B - $r.T
+  $bmp = New-Object Drawing.Bitmap $w, $hgt
+  $g = [Drawing.Graphics]::FromImage($bmp)
+  $hdc = $g.GetHdc()
+  $ok = [RFWin]::PrintWindow($h, $hdc, 2)
+  $g.ReleaseHdc($hdc)
+  if (-not $ok) { $g.CopyFromScreen($r.L, $r.T, 0, 0, $bmp.Size) }
+  $g.Dispose()
+  $colors = @{}
+  foreach ($fx in 0.2, 0.4, 0.5, 0.6, 0.8) { foreach ($fy in 0.2, 0.5, 0.8) { $colors[$bmp.GetPixel([int]($w * $fx), [int]($hgt * $fy)).ToArgb()] = 1 } }
+  if ($w -gt 800 -and $colors.Count -gt 2) { break }
+  $bmp.Dispose(); $bmp = $null
+  [RFWin]::SetForegroundWindow($h) | Out-Null
+  Start-Sleep -Milliseconds 1500
+  [RFWin]::GetWindowRect($h, [ref]$r) | Out-Null
+}
+if ($bmp -eq $null) { "capture stayed blank"; exit 1 }
 $bmp.Save($Out, [Drawing.Imaging.ImageFormat]::Png)
 $bmp.Dispose()
 "saved $Out ($w x $hgt)"
-

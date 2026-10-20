@@ -39,6 +39,7 @@
   <RF_Colonists>colonists</RF_Colonists>
   <RF_GoodwillShort>Goodwill {0} ({1})</RF_GoodwillShort>
   <RF_StanceButton>Player: {0}</RF_StanceButton>
+  <RF_StancePlayers>Players:</RF_StancePlayers>
   <RF_Stance_Ally>Friendly with {0}</RF_Stance_Ally>
   <RF_Stance_Neutral>Neutral with {0}</RF_Stance_Neutral>
   <RF_Stance_Hostile>Hostile with {0}</RF_Stance_Hostile>
