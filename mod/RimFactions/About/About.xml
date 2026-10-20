@@ -15,7 +15,9 @@
 - Start together on one map, then split off to found your own colony.
 - Goodwill news feed for gifts, help, raids, splits and relation changes.
 
-Needs Prepatcher, Multiplayer and Multiplayer Compatibility (by Zetrith and the RimWorld Multiplayer Team): subscribe to them too, and load them before Rim Factions.</description>
+Needs Prepatcher, Multiplayer and Multiplayer Compatibility (by Zetrith and the RimWorld Multiplayer Team): subscribe to them too, and load them before Rim Factions.
+
+Rim Factions is an unofficial, free, community-made mod. It is not made, endorsed or supported by Ludeon Studios.</description>
   <modDependencies>
     <li>
       <packageId>zetrith.prepatcher</packageId>
