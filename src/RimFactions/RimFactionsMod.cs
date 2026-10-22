@@ -80,6 +80,7 @@ namespace RimFactions
                     ("SharedSaves", () => SharedSaves.Init()),
                     ("Colonists", () => EarlyColonistsDone.Init(new Harmony("melty.rimfactions.colonists"))),
                     ("PersonalWork", () => PersonalWork.Init(new Harmony("melty.rimfactions.personalwork"))),
+                    ("ColonyNames", () => ColonyNames.Init(new Harmony("melty.rimfactions.colonynames"))),
                     ("LoadTrace", () => LoadTrace.Init(new Harmony("melty.rimfactions.loadtrace"))),
                     ("DesyncReport", () => DesyncReport.Init(new Harmony("melty.rimfactions.desyncreport"))),
                     ("SyncCheck", () => SyncCheck.Init(new Harmony("melty.rimfactions.synccheck"))),

@@ -1,5 +1,5 @@
 ﻿# Builds Rim Factions and assembles build/package (the release layout) and build/RimFactions-<version>.zip.
-param([string]$Version = "0.15.12")
+param([string]$Version = "0.15.13")
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 $tools = "$env:USERPROFILE\.melty-tools"
