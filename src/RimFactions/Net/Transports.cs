@@ -53,7 +53,7 @@ namespace RimFactions.Net
 
         public void Send(string peer, string text)
         {
-            if (!peer.StartsWith("steam:") || !ulong.TryParse(peer.Substring(6), out var id)) return;
+            if (!Available || !peer.StartsWith("steam:") || !ulong.TryParse(peer.Substring(6), out var id)) return;
             Allowed.Add(id);
             var data = Encoding.UTF8.GetBytes(text);
             if (!SteamNetworking.SendP2PPacket(new CSteamID(id), data, (uint)data.Length, EP2PSend.k_EP2PSendReliable, channel))
@@ -62,7 +62,8 @@ namespace RimFactions.Net
 
         public void Poll(ConcurrentQueue<Incoming> into)
         {
-            while (SteamNetworking.IsP2PPacketAvailable(out uint size, channel))
+            // Steam can shut down while the game runs (quitting, Steam closed): then there is nothing to read
+            while (Available && SteamNetworking.IsP2PPacketAvailable(out uint size, channel))
             {
                 if (buf.Length < size) buf = new byte[size];
                 if (!SteamNetworking.ReadP2PPacket(buf, size, out uint read, out CSteamID remote, channel)) continue;
@@ -72,7 +73,7 @@ namespace RimFactions.Net
 
         public void Close(string peer)
         {
-            if (peer.StartsWith("steam:") && ulong.TryParse(peer.Substring(6), out var id))
+            if (Available && peer.StartsWith("steam:") && ulong.TryParse(peer.Substring(6), out var id))
                 SteamNetworking.CloseP2PChannelWithUser(new CSteamID(id), channel);
         }
 
