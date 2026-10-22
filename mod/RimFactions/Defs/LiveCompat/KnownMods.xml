@@ -308,4 +308,12 @@
     <note>no world-tile previews while live (it rolled the game's dice on a background thread); solo play keeps them.</note>
   </RimFactions.Compat.LiveCompatDef>
 
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_Fortified</defName>
+    <label>Fortified Features Framework</label>
+    <packageId>aoba.framework</packageId>
+    <status>patched</status>
+    <note>its lost-mech list changed only in the game that saved, which desynced when lost mechs returned. Rim Factions keeps it the same in every game.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
 </Defs>
