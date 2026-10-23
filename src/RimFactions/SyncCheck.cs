@@ -35,6 +35,7 @@ namespace RimFactions
             }
             Log.Message($"[Rim Factions] sync check tick {tick}: owners {owners} personal {personal} orders {comp.orderOwners.Count}/{orders} " +
                         $"wounds {Hash(wounds.ToString())} doctors {Hash(work.ToString())} forbidden {Hash(forbid.ToString())} colonists {colonists.Count}");
+            Log.Message($"[Rim Factions] sync check power tick {tick}: {PowerSummary(false)}");
         }
 
         static int last = -1, lastMove = -1;
@@ -72,6 +73,30 @@ namespace RimFactions
             // the window's own constructors only (patching an inherited method would hit every window)
             foreach (var ctor in HarmonyLib.AccessTools.GetDeclaredConstructors(window))
                 h.Patch(ctor, postfix: new HarmonyLib.HarmonyMethod(typeof(SyncCheck), nameof(DumpRecent)));
+        }
+
+        /// Every power network on every map: batteries and their exact stored energy, and each building's on/off and
+        /// power gain. Short form: one hash per network; long form (at a desync): every building, one per line.
+        static string PowerSummary(bool full)
+        {
+            var sb = new StringBuilder();
+            foreach (var map in Find.Maps)
+            {
+                var nets = map.powerNetManager?.AllNetsListForReading;
+                if (nets == null) continue;
+                foreach (var net in nets.OrderBy(n => n.transmitters.Count > 0 ? n.transmitters.Min(c => c.parent.thingIDNumber) : -1))
+                {
+                    int id = net.transmitters.Count > 0 ? net.transmitters.Min(c => c.parent.thingIDNumber) : -1;
+                    var detail = new StringBuilder();
+                    foreach (var b in net.batteryComps.OrderBy(c => c.parent.thingIDNumber))
+                        detail.Append(b.parent.thingIDNumber).Append(" battery ").Append(b.parent.def.defName).Append(' ').Append(b.StoredEnergy.ToString("R")).Append('\n');
+                    foreach (var c in net.powerComps.OrderBy(c => c.parent.thingIDNumber))
+                        detail.Append(c.parent.thingIDNumber).Append(' ').Append(c.parent.def.defName).Append(c.PowerOn ? " on " : " off ").Append(c.PowerOutput.ToString("R")).Append('\n');
+                    if (full) sb.Append($"map {map.uniqueID} net {id}:\n").Append(detail);
+                    else sb.Append($"m{map.uniqueID}n{id} b{net.batteryComps.Count} p{net.powerComps.Count} {Hash(detail.ToString())}; ");
+                }
+            }
+            return sb.ToString();
         }
 
         static string Hash(string s)
