@@ -344,4 +344,5 @@ It contains your Multiplayer username, the game's log (with your mod list and fi
   <RF_NewsTogetherText>{0} joined the colony live with {1} colonists of their own.</RF_NewsTogetherText>
   <RF_NewsSplitLabel>A colony splits off</RF_NewsSplitLabel>
   <RF_NewsSplitText>{0} left the shared colony with {1} colonists to found their own.</RF_NewsSplitText>
+  <RF_TradeGone>That caravan has already moved on, so there's nothing to trade with. The trade was closed.</RF_TradeGone>
 </LanguageData>

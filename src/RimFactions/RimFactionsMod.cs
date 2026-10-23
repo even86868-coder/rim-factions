@@ -80,6 +80,7 @@ namespace RimFactions
                     ("SharedSaves", () => SharedSaves.Init()),
                     ("Colonists", () => EarlyColonistsDone.Init(new Harmony("melty.rimfactions.colonists"))),
                     ("PersonalWork", () => PersonalWork.Init(new Harmony("melty.rimfactions.personalwork"))),
+                    ("BrokenTrades", () => Compat.BrokenTrades.Init(new Harmony("melty.rimfactions.brokentrades"))),
                     ("ColonyNames", () => ColonyNames.Init(new Harmony("melty.rimfactions.colonynames"))),
                     ("LoadTrace", () => LoadTrace.Init(new Harmony("melty.rimfactions.loadtrace"))),
                     ("DesyncReport", () => DesyncReport.Init(new Harmony("melty.rimfactions.desyncreport"))),
@@ -116,7 +117,7 @@ namespace RimFactions
             // each part on its own, so one failing doesn't stop the others; each error is logged once, in full
             LoadTrace.Frame();
             Run(0, Compat.LiveSettings.Update); Run(1, Live.Update); Run(2, ReloadSave.Update); Run(3, ModSync.MenuCheck);
-            Run(4, Lobby.Update); Run(5, Starters.Update); Run(6, JoinWelcome.Tick); Run(7, Trade.Tick); Run(8, DesyncReport.Update);
+            Run(4, Lobby.Update); Run(5, Starters.Update); Run(6, JoinWelcome.Tick); Run(7, Trade.Tick); Run(8, DesyncReport.Update); Run(9, Compat.BrokenTrades.Update);
             LoadTrace.driverPart = null;
         }
     }
