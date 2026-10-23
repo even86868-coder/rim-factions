@@ -316,4 +316,12 @@
     <note>its lost-mech list changed only in the game that saved, which desynced when lost mechs returned. Rim Factions keeps it the same in every game.</note>
   </RimFactions.Compat.LiveCompatDef>
 
+  <RimFactions.Compat.LiveCompatDef>
+    <defName>RF_LC_BuildFromInventory</defName>
+    <label>Build From Inventory</label>
+    <packageId>memegoddess.buildfrominventory</packageId>
+    <status>patched</status>
+    <note>its inventory check could remember a right-click's answer in one game only, which desynced pawns' work. Rim Factions keeps it the same in every game.</note>
+  </RimFactions.Compat.LiveCompatDef>
+
 </Defs>
